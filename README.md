@@ -1,6 +1,6 @@
 # Simpl4u
 
-Simpl4u is a modular framework designed to simplify the development of angular and web applications. It provides reusable components, services, and utilities to streamline the creation of dynamic and interactive user interfaces.
+Simpl4u is a modular framework designed to simplify the development of electron and web applications. It provides reusable components, services, and utilities to streamline the creation of dynamic and interactive user interfaces.
 
 > WIP: Work In Progress
 
