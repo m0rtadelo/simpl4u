@@ -1,0 +1,13 @@
+import './simpl-button.js';
+import './simpl-input.js';
+import './simpl-select.js';
+import './simpl-table.js';
+import './simpl-crud.js';
+import './simpl-date.js';
+import './simpl-switch.js';
+import './simpl-textarea.js';
+import './simpl-color.js';
+import './simpl-file.js';
+import './simpl-navbar.js';
+import './simpl-progress.js';
+import './simpl-spinner.js';
