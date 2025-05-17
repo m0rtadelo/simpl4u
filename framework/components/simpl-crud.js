@@ -3,7 +3,6 @@ import { SimplModel } from '../models/simpl-model.js';
 import { Config } from '../services/config-service.js';
 import { LanguageService } from '../services/language-service.js';
 import { ModalService } from '../services/modal-service.js';
-import { StorageService } from '../services/storage-service.js';
 import { ToastService } from '../services/toast-service.js';
 
 /**
@@ -25,7 +24,6 @@ export class SimplCrud extends StaticElement {
   headers = [];
   form = [];
   subscription;
-  //storage = StorageService;
 
   constructor() {
     super();

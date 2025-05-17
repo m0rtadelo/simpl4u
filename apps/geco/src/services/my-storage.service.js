@@ -4,6 +4,14 @@ import { MyRemoteService } from './my-remote.service.js';
 export class MyStorageService {
   static type = 'application';
 
+  static get key() {
+    return StorageService.key;
+  }
+  
+  static set key(value) {
+    StorageService.key = value;
+  }
+
   static async saveAppModel(data) {
     const map = {
       application: async () => await StorageService.saveAppModel(data),

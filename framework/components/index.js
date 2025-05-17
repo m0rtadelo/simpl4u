@@ -11,3 +11,4 @@ import './simpl-file.js';
 import './simpl-navbar.js';
 import './simpl-progress.js';
 import './simpl-spinner.js';
+import './simpl-todo.js';

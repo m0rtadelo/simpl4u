@@ -2,13 +2,13 @@ import { StaticElement } from '../../../../framework/core/static-element.js';
 import { LanguageService } from '../../../../framework/services/language-service.js';
 import { TextService } from '../../../../framework/services/text-service.js';
 
-export class MyTodo extends StaticElement {
+export class MyStatus extends StaticElement {
 
   constructor() {
     super();
     this.search = '';
-    this.context = 'todo';
-  }
+    this.context = 'status';
+  }Patata_0_panel_Int
 
   template(state) {
     return `
@@ -20,8 +20,7 @@ export class MyTodo extends StaticElement {
         </div>
       </div>
     </div>
-    <simpl-todo context="${this.context}" id="simpl-todo" form="my-todo-form"></simpl-todo>
-    `;
+    <simpl-todo context="${this.context}" id="simpl-todo" form="my-todo-form"></simpl-todo>`;
   }
 
   onReady() {
@@ -50,15 +49,16 @@ export class MyTodo extends StaticElement {
     <div class="card mb-2" draggable="true" ${item['custom-color'] ? `style="background-color: ${item.color}"` : ''} id="${item.id}" (dragstart)="drag">
     ${this.renderDate(item)}
       <div class="card-body">
-        <div id="${item.id}_title" class="text-break fw-semibold pointer" (click)="editToDo">${item.title}</div>
-        <small class="text-break fw-light">${item.description || ''}</small>
+        <div id="${item.id}_title" class="text-break fw-semibold pointer item" (click)="editToDo">${item.name}</div>
+        <small class="text-break badge text-bg-dark fw-light version">${item.version || ''}</small>
+        <small class="text-break badge text-bg-light fw-light target">${item.target || ''}</small>
       </div>
     </div>
       `;
       });
     return result;
   }
-
+  
   renderDate(item) {
     const todayString = `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date().getDate()}`;
     const today = new Date(todayString);
@@ -74,15 +74,15 @@ export class MyTodo extends StaticElement {
     }
     return '';
   }
-
+  
   filter(event) {
     this.search = event.target.value;
   }
 
   clear() {
     this.search = '';
-    setTimeout(() => { this.get('search')?.focus(); }, 300);
+    setTimeout(() => {this.get('search')?.focus();}, 300);
     this.refresh();
   }
 }
-customElements.define('my-todo', MyTodo);
+customElements.define('my-status', MyStatus);

@@ -152,7 +152,7 @@ export class MyServices extends StaticElement {
     try {
       const content = await file.text();
       const json = JSON.parse(content);
-      await Config.storage.saveAppModel(content);
+      await Config.storage.saveAppModel(json);
       Config.storage.saveUserModel(content);
       SimplModel.model = json;
       window.location.reload();

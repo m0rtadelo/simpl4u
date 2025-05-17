@@ -117,7 +117,13 @@ export class StorageService {
    * @returns {JSON} the json object stored in the app local storage
    */
   static #getAppMap() {
-    return JSON.parse(localStorage.getItem(this.#key) || '{}');
+    let result;
+    try {
+      result = JSON.parse(localStorage.getItem(this.#key));
+    } catch (error) {
+      result = {};
+    }
+    return result;
   }
 
   /**
