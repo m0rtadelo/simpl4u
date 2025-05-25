@@ -20,8 +20,9 @@ export class MyApp extends StaticElement {
 
   initApp() {
     Config.storage = MyStorageService;
+    Config.loaded = true;
     LanguageService.set({ ca, en, es });
-    RouterService.view = 'projects';
+    RouterService.view = 'login';
     Config.storage.key = 'geco';
     document.title = 'GECO+';
 
@@ -30,12 +31,13 @@ export class MyApp extends StaticElement {
   template() {
     const v = RouterService.view;
     return `
-    <my-navbar></my-navbar>
+    ${ v !== 'login' ? '<my-navbar></my-navbar>' : '' }
     <div class="container-fluid">
       <div class="row">
         ${ v === 'projects' ? '<my-projects></my-projects>' : '' }
         ${ v === 'status' ? '<my-status></my-status>' : '' }
         ${ v === 'options' ? '<my-options></my-options>' : '' }
+        ${ v === 'login' ? '<my-login></my-login>' : '' }
       </div>
     </div>
     <simpl-spinner></simpl-spinner>

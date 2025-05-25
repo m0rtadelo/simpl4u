@@ -15,12 +15,10 @@ export class Element extends HTMLElement {
   // state;
   _items;
 
-  static #done; 
-
   constructor() {
     super();
-    if (!Element.#done) {
-      Element.#done = true;
+    if (!Config.loaded) {
+      Config.loaded = true;
       LanguageService.subscribe(() => {
         this.refresh();
       });
@@ -151,12 +149,12 @@ export class Element extends HTMLElement {
   */
   prependTagNameToCSS(cssString, tagName) {
     return cssString.replace(/([^\{\}]+)\s*\{/g, (match, selectors) => {
-        // Clean up selectors and add the tag
-        const updatedSelectors = selectors
-            .split(',')
-            .map(selector => `${tagName} ${selector.trim()}`)
-            .join(', ');
-        return `${updatedSelectors} {`;
+      // Clean up selectors and add the tag
+      const updatedSelectors = selectors
+        .split(',')
+        .map(selector => `${tagName} ${selector.trim()}`)
+        .join(', ');
+      return `${updatedSelectors} {`;
     });
   }
   

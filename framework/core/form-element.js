@@ -5,6 +5,7 @@ export class FormElement extends StaticElement {
   hidden = this.hasAttribute('hidden');
   disabled = this.hasAttribute('disabled');
   reactive = this.hasAttribute('reactive');
+  type = this.getAttribute('type');
 
   isRequired() {
     return this.required && !(this.disabled || this.hidden) ? 'required' : '';

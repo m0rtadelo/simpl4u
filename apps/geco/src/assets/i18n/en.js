@@ -22,4 +22,8 @@ export const words = {
   'form1': 'Form 1',
   'form2': 'Form 2',
   'todo': 'ToDo',
+  'login.title': 'Login',
+  'login.username': 'Username',
+  'login.password': 'Password',
+  'login.submit': 'Submit',
 };

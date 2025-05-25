@@ -24,4 +24,8 @@ export const words = {
   'form1': 'Formulari 1',
   'form2': 'Formulari 2',
   'todo': 'ToDo',
+  'login.title': 'Inicia sessió',
+  'login.username': 'Usuari',
+  'login.password': 'Contrasenya',
+  'login.submit': 'Inicia sessió',
 };

@@ -2,17 +2,19 @@ import { SpinnerService } from '../../../../framework/services/spinner-service.j
 import { ToastService } from '../../../../framework/services/toast-service.js';
 export class MyRemoteService {
   static remote = {
-    url: 'http://localhost:3000/simpl4u',
-    login: 'http://localhost:3000/login',
+    url: 'http://aurica.dnset.com:3000/simpl4u',
+    login: 'http://aurica.dnset.com:3000/login',
     auth: {
-      username: 'admin',
-      password: 'password'
+      username: '',
+      password: ''
     }
   };
   static token;
   static timer;
 
   static async loadApp(key, login = true) {
+    if (!MyRemoteService.remote.auth.username)
+      return;
     try {
       SpinnerService.show();
       const response = await fetch(MyRemoteService.remote.url + '?key=' + key, {
@@ -54,6 +56,9 @@ export class MyRemoteService {
   }
 
   static async saveApp(key, value, login = true) {
+    if (!MyRemoteService.remote.auth.username)
+      return;
+
     let isJson = false;
     if (typeof value === 'object') {
       isJson = true;
@@ -91,6 +96,9 @@ export class MyRemoteService {
   }
 
   static async saveModel(data, login = true) {
+    if (!MyRemoteService.remote.auth.username)
+      return;
+
     try {
       SpinnerService.show();
       const response = await fetch(MyRemoteService.remote.url, {
@@ -155,7 +163,9 @@ export class MyRemoteService {
     }
   }
 
-  static async login() {
+  static async login(auth) {
+    MyRemoteService.remote.auth = auth || MyRemoteService.remote.auth;
+    SpinnerService.show();
     try {
       const response = await fetch(MyRemoteService.remote.login, {
         method: 'POST',
@@ -164,7 +174,8 @@ export class MyRemoteService {
         },
         body: JSON.stringify(MyRemoteService.remote.auth)
       });
-
+      SpinnerService.hide();
+  
       if (!response.ok) {
         return false;
       }
@@ -174,6 +185,7 @@ export class MyRemoteService {
       return true;
     } catch (error) {
       console.error('Error during login:', error);
+      SpinnerService.hide();
       return false;
     }
   }

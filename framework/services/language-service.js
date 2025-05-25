@@ -20,14 +20,17 @@ export class LanguageService {
   // }
 
   static {
-    Config.storage.loadApp('_lang').then((lang) => {
-      LanguageService.lang = lang || 'en';
-    });
+    LanguageService.load();
     LanguageService.#languages = { ca, en, es };
     //document.documentElement.setAttribute('lang', this.#lang);
     //Config.storage.loadApp('_lang')
   }
 
+  static load() {
+    Config.storage.loadApp('_lang').then((lang) => {
+      LanguageService.lang = lang || 'en';
+    });
+  }
   /**
    * Subscribes to language changes.
    * 

@@ -1,5 +1,3 @@
-import { StorageService } from './storage-service.js';
-
 export class Config {
   static storage = {
     saveApp: (key, value) => {

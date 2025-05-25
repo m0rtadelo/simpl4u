@@ -1,9 +1,16 @@
 export class SpinnerService {
+  static debounceTime = 200;
+  static ref;
+
   static show() {
-    SpinnerService.#toggle('flex');
+    clearTimeout(SpinnerService.ref);
+    SpinnerService.ref = setTimeout(() => {
+      SpinnerService.#toggle('flex');
+    }, SpinnerService.debounceTime);
   }
 
   static hide() {
+    clearTimeout(SpinnerService.ref);
     SpinnerService.#toggle('none');
   }
 

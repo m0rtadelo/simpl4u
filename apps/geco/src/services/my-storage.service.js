@@ -2,7 +2,7 @@ import { StorageService } from '../../../../framework/services/storage-service.j
 import { MyRemoteService } from './my-remote.service.js';
 
 export class MyStorageService {
-  static type = 'application';
+  static type = 'remote';
 
   static get key() {
     return StorageService.key;

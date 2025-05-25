@@ -3,13 +3,17 @@ export class ThemeService {
   static #_theme = '';
 
   static {
-    Config.storage.loadApp('_theme').then((theme) => {
-      this.theme = theme || this.#getPreferredTheme();
-    });
+    ThemeService.load();
     // this.theme = this.#getPreferredTheme();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
       const systemTheme = e.matches ? 'dark' : 'light';
       ThemeService.theme = systemTheme;
+    });
+  }
+
+  static load() {
+    Config.storage.loadApp('_theme').then((theme) => {
+      this.theme = theme || this.#getPreferredTheme();
     });
   }
 
