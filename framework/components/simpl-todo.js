@@ -133,7 +133,7 @@ export class SimplTodo extends ReactiveElement {
             <h5 class="bi clickable bi-plus-square mt-2 panel-icon" (click)="onAddToDo"></h5>
           </div>
         </div>
-        ${this.renderItems(JSON.parse(JSON.stringify(state)), key)}
+        ${this.renderItems(state, key)}
       </div>    
       `;
     });
@@ -160,7 +160,12 @@ export class SimplTodo extends ReactiveElement {
   }
 
   renderItems(state, type) {
-    return this.renderItemsFn?.(state, type);
+    state[type].forEach((item, index) => {
+      item = item || {};
+      item.id = `${type}_${index}`;
+    });
+    this.model[type] = state[type];
+    return this.renderItemsFn?.(JSON.parse(JSON.stringify(state)), type);
     // let result = '';
     // state[type]?.sort((a, b) => {
     //   if (a?.date && b?.date) {

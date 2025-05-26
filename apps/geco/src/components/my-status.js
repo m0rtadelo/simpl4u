@@ -8,7 +8,7 @@ export class MyStatus extends StaticElement {
     super();
     this.search = '';
     this.context = 'status';
-  }Patata_0_panel_Int
+  }
 
   template(state) {
     return `
@@ -44,7 +44,7 @@ export class MyStatus extends StaticElement {
     })
       .forEach((item, index) => {
         item = item || {};
-        item.id = item?.id || `${type}_${index}`;
+        item.id = `${type}_${index}`;
         result += `
     <div class="card mb-2" draggable="true" ${item['custom-color'] ? `style="background-color: ${item.color}"` : ''} id="${item.id}" (dragstart)="drag">
     ${this.renderDate(item)}

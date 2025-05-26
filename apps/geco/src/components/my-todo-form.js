@@ -37,18 +37,22 @@ export class MyTodoForm extends StaticElement {
   onReady() {
     setTimeout(() => {
       document.querySelector('input#name').focus();
+      this.model['target'] = this.model['target'] || 'int';
     }, 500);
     this.changeSwitch();
   }
 
   async copy() {
     const values = JSON.parse(JSON.stringify(this.model));
+    const oldId = values['id'];
+    const oldParts = oldId.split('_');
     const version = await ModalService.prompt('Enter the new version', 'Version', values['version']);
     if (!version)
       return;
+    console.log(oldParts);
     const model = await MyStorageService.loadApp('status');
     const panels = Object.keys(model);
-    model[panels[0]].push({...values, version: version });
+    model[panels[0]].push({...values, version: version, id: Date.now() });
     SimplModel.model['status'] = model;
     await MyStorageService.saveApp('status', model);
     ToastService.success(`Version ${version} added`);
