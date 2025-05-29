@@ -53,7 +53,10 @@ export class SimplModel {
     const handler = {
       set: (target, property, value) => {
         target[property] = value;
-        SimplModel.#notify();
+        clearTimeout(SimplModel.notifyTimeout);
+        SimplModel.notifyTimeout = setTimeout(() => {
+          SimplModel.#notify();
+        } , 100);
         return true;
       },
       get: (target, property) => {
