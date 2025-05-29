@@ -6,6 +6,7 @@ export class ReactiveElement extends Element {
   constructor() { 
     super();
     this.state = SimplModel.get(undefined, this.context);
+    this.subscription?.();
     this.subscription = SimplModel.subscribe(model => {
       this.setState(model[this.context]);
     });
