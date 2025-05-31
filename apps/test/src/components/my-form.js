@@ -11,7 +11,6 @@ export class MyForm extends StaticElement {
   }
 
   template() {
-    console.log(this.context, this.model);
     return `
     <div class="container">
       <div class="col-12 text-center">
