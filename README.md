@@ -22,30 +22,17 @@ Simpl4u is a modular framework designed to simplify the development of [electron
 ## Getting Started
 
 1. **Install Dependencies**:
-   Navigate to the `framework` and `apps/test` directories and run:
    ```sh
    npm install
    ```
 
-2. **Run the Backend Server**:
-   Navigate to the `backend/server` directory and start the server:
-   ```sh
-   npm start
-   ```
-
-3. **Run the Application**:
-   Navigate to the `apps/test` directory and start the Electron app:
-   ```sh
-   npm start
-   ```
-
-4. **Lint the Code**:
+2. **Lint the Code**:
    Run the linter to check for code quality:
    ```sh
    npm run lint
    ```
 
-5. **Fix Lint Issues**:
+3. **Fix Lint Issues**:
    Automatically fix linting issues:
    ```sh
    npm run lint:fix
