@@ -1,4 +1,4 @@
-import { StorageService } from '../../../../framework/services/storage-service.js';
+import { StorageService } from '../../../../simpl4u/services/storage-service.js';
 import { MyRemoteService } from './my-remote.service.js';
 
 export class MyStorageService {

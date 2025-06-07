@@ -1,6 +1,6 @@
-import { StaticElement } from '../../../../framework/core/static-element.js';
-import { LanguageService } from '../../../../framework/services/language-service.js';
-import { TextService } from '../../../../framework/services/text-service.js';
+import { StaticElement } from '../../../../simpl4u/core/static-element.js';
+import { LanguageService } from '../../../../simpl4u/services/language-service.js';
+import { TextService } from '../../../../simpl4u/services/text-service.js';
 
 export class MyTodo extends StaticElement {
 

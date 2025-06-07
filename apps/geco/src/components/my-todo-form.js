@@ -1,8 +1,8 @@
-import { StaticElement } from '../../../../framework/core/static-element.js';
-import { SimplModel } from '../../../../framework/models/simpl-model.js';
-import { LanguageService } from '../../../../framework/services/language-service.js';
-import { ModalService } from '../../../../framework/services/modal-service.js';
-import { ToastService } from '../../../../framework/services/toast-service.js';
+import { StaticElement } from '../../../../simpl4u/core/static-element.js';
+import { SimplModel } from '../../../../simpl4u/models/simpl-model.js';
+import { LanguageService } from '../../../../simpl4u/services/language-service.js';
+import { ModalService } from '../../../../simpl4u/services/modal-service.js';
+import { ToastService } from '../../../../simpl4u/services/toast-service.js';
 import { MyStorageService } from '../services/my-storage.service.js';
 
 export class MyTodoForm extends StaticElement {

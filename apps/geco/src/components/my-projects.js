@@ -1,5 +1,5 @@
-import { StaticElement } from '../../../../framework/core/static-element.js';
-import { LanguageService } from '../../../../framework/services/language-service.js';
+import { StaticElement } from '../../../../simpl4u/core/static-element.js';
+import { LanguageService } from '../../../../simpl4u/services/language-service.js';
 
 export class MyProjects extends StaticElement {
 

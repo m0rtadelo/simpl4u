@@ -1,6 +1,6 @@
-import { ModalService } from '../../../../framework/services/modal-service.js';
-import { SimplModel } from '../../../../framework/models/simpl-model.js';
-import { Config } from '../../../../framework/services/config-service.js';
+import { ModalService } from '../../../../simpl4u/services/modal-service.js';
+import { SimplModel } from '../../../../simpl4u/models/simpl-model.js';
+import { Config } from '../../../../simpl4u/services/config-service.js';
 
 export class MyTodoService {
   static context = '';

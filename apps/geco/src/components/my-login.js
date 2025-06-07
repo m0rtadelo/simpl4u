@@ -1,8 +1,8 @@
-import { StaticElement } from '../../../../framework/core/static-element.js';
-import { Config } from '../../../../framework/services/config-service.js';
-import { LanguageService } from '../../../../framework/services/language-service.js';
-import { ThemeService } from '../../../../framework/services/theme-service.js';
-import { ToastService } from '../../../../framework/services/toast-service.js';
+import { StaticElement } from '../../../../simpl4u/core/static-element.js';
+import { Config } from '../../../../simpl4u/services/config-service.js';
+import { LanguageService } from '../../../../simpl4u/services/language-service.js';
+import { ThemeService } from '../../../../simpl4u/services/theme-service.js';
+import { ToastService } from '../../../../simpl4u/services/toast-service.js';
 import { MyRemoteService } from '../services/my-remote.service.js';
 
 export class MyLogin extends StaticElement {

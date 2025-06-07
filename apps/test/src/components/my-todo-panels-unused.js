@@ -1,6 +1,6 @@
-import { ModalService } from '../../../../framework/services/modal-service.js';
-import { ReactiveElement } from '../../../../framework/core/reactive-element.js';
-import { TextService } from '../../../../framework/services/text-service.js';
+import { ModalService } from '../../../../simpl4u/services/modal-service.js';
+import { ReactiveElement } from '../../../../simpl4u/core/reactive-element.js';
+import { TextService } from '../../../../simpl4u/services/text-service.js';
 import { MyTodoService } from '../services/my-todo.service.js';
 
 export class MyTodoPanels extends ReactiveElement {

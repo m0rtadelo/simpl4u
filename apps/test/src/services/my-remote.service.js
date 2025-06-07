@@ -1,5 +1,5 @@
-import { SpinnerService } from '../../../../framework/services/spinner-service.js';
-import { ToastService } from '../../../../framework/services/toast-service.js';
+import { SpinnerService } from '../../../../simpl4u/services/spinner-service.js';
+import { ToastService } from '../../../../simpl4u/services/toast-service.js';
 export class MyRemoteService {
   static remote = {
     url: 'http://localhost:3000/simpl4u',

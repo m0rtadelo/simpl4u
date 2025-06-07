@@ -1,7 +1,7 @@
-import { StaticElement } from '../../../../framework/core/static-element.js';
-import { LanguageService } from '../../../../framework/services/language-service.js';
-import { ModalService } from '../../../../framework/services/modal-service.js';
-import { Config } from '../../../../framework/services/config-service.js';
+import { StaticElement } from '../../../../simpl4u/core/static-element.js';
+import { LanguageService } from '../../../../simpl4u/services/language-service.js';
+import { ModalService } from '../../../../simpl4u/services/modal-service.js';
+import { Config } from '../../../../simpl4u/services/config-service.js';
 
 export class MyForm extends StaticElement {
 
