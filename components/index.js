@@ -12,3 +12,5 @@ import './simpl-navbar.js';
 import './simpl-progress.js';
 import './simpl-spinner.js';
 import './simpl-todo.js';
+import './simpl-combobox.js';
+import './simpl-combobox-list.js';
