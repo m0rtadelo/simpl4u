@@ -2,6 +2,7 @@ import { FormElement } from '../core/form-element.js';
 import { LanguageService } from '../services/language-service.js';
 
 export class SimplCombobox extends FormElement {
+  subscription;
   constructor() {
     super();
     this._items = this.getAttribute('items') || [];
@@ -15,13 +16,14 @@ export class SimplCombobox extends FormElement {
         position: absolute;
         z-index: 1000;
       }`;
+    this.text = this.model[this.name || this.id];
   }
 
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
 <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<input (input)="change" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${state[this.name || this.id] || ''}" list="${this.name || this.id}-list"></input>
+<input (input)="change" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${this.text || ''}" list="${this.name || this.id}-list"></input>
 <div>
   <simpl-combobox-list id="${this.name || this.id}-list"></simpl-combobox-list>
 </div>
@@ -30,14 +32,43 @@ export class SimplCombobox extends FormElement {
   }
 
   change(value) {
-    this.get(`${this.name || this.id}-list`).filterText = value.target.value;
+    const text = value?.target?.value || '';
+    console.log('change', text);
+    this.get(`${this.name || this.id}-list`).filterText = text;
     this.get(`${this.name || this.id}-list`).refresh();
+  }
+
+  blur() {
+    console.log('blur');
+    this.get(`${this.name || this.id}-list`).validate();
+    setTimeout(() => {
+      this.get(`${this.name || this.id}-list`).open = false;
+      this.get(`${this.name || this.id}-list`).refresh();
+    }, 100);
+  }
+
+  focus() {
+    console.log('focus');
+    this.get(`${this.name || this.id}-list`).open = true;
+    this.change({ target: { value: this.text }});
+    //this.get(`${this.name || this.id}-list`).refresh();
   }
 
   onReady() {
     const list = this.get(`${this.name || this.id}-list`);
     if (list) {
       list.items = this._items;
+      this.subscription?.();
+      this.subscription = list.subscribe((action, data) => {
+        console.log(action, data);
+        this.setField(this.name || this.id, data.id);
+        this.text = data.text;
+        this.refresh();
+        setTimeout(() => {
+          list.filterText = data.text;
+          list.refresh();
+        }, 100);
+      });
     }
   }
 }
