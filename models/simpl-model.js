@@ -56,7 +56,7 @@ export class SimplModel {
         clearTimeout(SimplModel.notifyTimeout);
         SimplModel.notifyTimeout = setTimeout(() => {
           SimplModel.#notify();
-        } , 100);
+        } , 20);
         return true;
       },
       get: (target, property) => {
