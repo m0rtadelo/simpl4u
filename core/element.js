@@ -12,7 +12,6 @@ export class Element extends HTMLElement {
   disabled = this.hasAttribute('disabled');
   timerRef = undefined;
   style = '';
-  // state;
   _items;
 
   constructor() {
@@ -113,7 +112,7 @@ export class Element extends HTMLElement {
    * NOTE: Listeners will be destroyed and should be added again
    */
   render() {
-    this.innerHTML = this.getStyle().concat(this.template(this.state));
+    this.innerHTML = this.getStyle().concat(this.template(this.model));
 
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (() => {
@@ -193,7 +192,6 @@ export class Element extends HTMLElement {
   async loadViewState() {
     const result = await Config.storage.loadUser(this.context);
     if (result) {
-      this.state = result;
       this.model = result;
     }
     this.refresh();

@@ -216,7 +216,7 @@ export class SimplCrud extends StaticElement {
   #addIndex(data) {
     this.form.forEach((field) => {
       if (field.index) {
-        const index = this.state.data.length ? Math.max(...this.state.data.map((item) => item[field.name])) + 1 : 0;
+        const index = this.model?.data?.length ? Math.max(...this.model.data.map((item) => item[field.name])) + 1 : 0;
         data[field.name] = index;
       }
     });

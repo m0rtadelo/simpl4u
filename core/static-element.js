@@ -5,10 +5,8 @@ export class StaticElement extends Element {
   subscription;
   constructor() {
     super();
-    this.state = SimplModel.get(undefined, this.context);
     this.subscription?.();
     this.subscription = SimplModel.subscribe(model => {
-      this.state = (model[this.context]);
       this.onUpdateState();
     });    
   }
