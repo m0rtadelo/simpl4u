@@ -4,6 +4,7 @@ import { LanguageService } from '../services/language-service.js';
 import { ThemeService } from '../services/theme-service.js';
 
 export class SimplNavBar extends ReactiveElement {
+  #subscribers = new Set();
   _hideLang = false;
   _hideTheme = false;
   _items = [];
@@ -12,7 +13,6 @@ export class SimplNavBar extends ReactiveElement {
     { id: 'es', name: 'Español' },
     { id: 'ca', name: 'Català' }
   ];
-
   get items() {
     return this._items;
   }
@@ -66,6 +66,30 @@ export class SimplNavBar extends ReactiveElement {
         `;
   }
 
+  /**
+   * Subscribes to table events (e.g., create, update, delete, detail).
+   * 
+   * @param {Function} callback - The callback function to execute when an event occurs.
+   * @returns {Function} A function to unsubscribe the callback.
+   */
+  subscribe(callback) {
+    this.#subscribers.add(callback);
+    return () => this.#subscribers.delete(callback);
+  }
+
+  /**
+   * Notifies all subscribers of an action.
+   * 
+   * @private
+   * @param {string} action - The action performed (e.g., 'create', 'update', 'delete', 'detail').
+   * @param {object} data - The data associated with the action.
+   */
+  #notify(action, data) {
+    for (const callback of this.#subscribers) {
+      callback(action, data);
+    }
+  }
+  
   switchTheme() {
     ThemeService.switchTheme();
   }
@@ -76,7 +100,9 @@ export class SimplNavBar extends ReactiveElement {
 
   renderItems() {
     return this.items?.map(item => {
-      return `<li class="nav-link ${RouterService.view === item.id ? 'active' : ''}"><a class="dropdown-item" id="${item.id}" href="#${item.id}">${LanguageService.i18n(item.name)}</a></li>`;
+      return item.emmit 
+        ? `<li class="nav-link ${RouterService.view === item.id ? 'active' : ''}"><a class="dropdown-item" id="${item.id}" (click)="emmit" href="#">${LanguageService.i18n(item.name)}</a></li>`
+        : `<li class="nav-link ${RouterService.view === item.id ? 'active' : ''}"><a class="dropdown-item" id="${item.id}" href="#${item.id}">${LanguageService.i18n(item.name)}</a></li>`;
     }).join('');
   }
 
@@ -87,6 +113,8 @@ export class SimplNavBar extends ReactiveElement {
               </li>`;
     }).join('');
   }
-
+  emmit(event) {
+    this.#notify('click', event.target.id);
+  }
 }
 customElements.define('simpl-navbar', SimplNavBar);

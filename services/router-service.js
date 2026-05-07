@@ -27,6 +27,11 @@ export class RouterService {
     });
   }
 
+  static setView(view) {
+    RouterService.view = view;
+    RouterService.#notify();
+  }
+
   /**
    * Subscribes to route changes.
    * The provided callback will be called whenever the route changes.
