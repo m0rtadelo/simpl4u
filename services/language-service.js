@@ -12,18 +12,9 @@ export class LanguageService {
   static #subscribers = new Set();
   static #languages = {};
 
-  // constructor() {
-  //   Config.storage.loadApp('_lang').then((lang) => {
-  //     console.log('LanguageService', lang);
-  //     LanguageService.lang = lang || 'en';
-  //   });
-  // }
-
   static {
     LanguageService.load();
     LanguageService.#languages = { ca, en, es };
-    //document.documentElement.setAttribute('lang', this.#lang);
-    //Config.storage.loadApp('_lang')
   }
 
   static load() {

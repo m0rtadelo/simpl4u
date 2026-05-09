@@ -1,16 +1,34 @@
+/**
+ * SimplModel is an application-wide reactive state container.
+ * It stores data by context and notifies subscribers whenever the model changes.
+ */
 export class SimplModel {
   static #model = SimplModel.#createReactiveModel({});
   static #subscribers = new Set();
   static #lastNotifiedModel = '';
 
+  /**
+   * Replace the whole reactive model.
+   * @param {object} value new model object
+   */
   static set model(value) {
     this.#model = this.#createReactiveModel(value);
   }
 
+  /**
+   * Get the current reactive model.
+   * @returns {object} reactive model proxy
+   */
   static get model() {
     return this.#model;
   }
 
+  /**
+   * Get a value from the model.
+   * @param {string} [id] property key to retrieve
+   * @param {string} [context='global'] model context namespace
+   * @returns {any} stored value or context object
+   */
   static get(id, context = 'global') {
     this.#initContext(context);
     if (id && !SimplModel.model[context][id]) {
@@ -20,6 +38,12 @@ export class SimplModel {
     return value;
   }
 
+  /**
+   * Set a value in the model.
+   * @param {any} value value to store
+   * @param {string} [id] property key to set
+   * @param {string} [context='global'] model context namespace
+   */
   static set(value, id, context = 'global') {
     this.#initContext(context);
     if (id) {
@@ -29,6 +53,11 @@ export class SimplModel {
     }
   }
 
+  /**
+   * Subscribe to model updates.
+   * @param {function(object): void} callback called with the current model
+   * @returns {function(): void} unsubscribe function
+   */
   static subscribe(callback) {
     SimplModel.#subscribers.add(callback);
     callback(SimplModel.#model);

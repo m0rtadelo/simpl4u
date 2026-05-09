@@ -3,6 +3,12 @@ import { RouterService } from '../services/router-service.js';
 import { LanguageService } from '../services/language-service.js';
 import { ThemeService } from '../services/theme-service.js';
 
+/**
+ * @typedef {object} NavbarDefinition
+ * @property {string} id - The unique identifier of the navbar item.
+ * @property {string} name - The name of the field (translated).
+ * @property {boolean} emmit - Indicates if the item should emit an event when clicked (instead of navigating).
+ */
 export class SimplNavBar extends ReactiveElement {
   #subscribers = new Set();
   _hideLang = false;
@@ -13,12 +19,18 @@ export class SimplNavBar extends ReactiveElement {
     { id: 'es', name: 'Español' },
     { id: 'ca', name: 'Català' }
   ];
+
+  /** @returns {NavbarDefinition[]} */
   get items() {
     return this._items;
   }
-
-  set items(value) {
-    this._items = value;
+  /**
+   * Sets the navbar items for the component.
+   * 
+   * @param {NavbarDefinition[]} navbarItems - An array of navbar item definitions.
+   */
+  set items(navbarItems) {
+    this._items = navbarItems;
     this.refresh();
   }
 

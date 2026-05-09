@@ -241,10 +241,20 @@ export class SimplCrud extends StaticElement {
         this.form.length ? this.form : this.get('simpl-table').getHeaders().map((header) => ({ name: header }))
       )
     );
+    let focusToField = '';
     const fields = items.map((field) => {
       const type = field.type || 'input';
+      if (!focusToField && !field.hidden && !readonly) {
+        focusToField = field.name;
+      }
       return `<simpl-${type} class="${field.class}" context="__simpl-modal" ${field.required  && !(field.disabled || readonly) ? 'required' : ''} name="${field.name}" ${field.hidden ? 'hidden' : ''} ${field.disabled || readonly ? 'disabled' : ''}></simpl-${type}>`;
     }).join('\n');
+    setTimeout(() => {
+      if (focusToField) {
+        const input = document.querySelector(`[name="${focusToField}"]`);
+        input?.focus();
+      }
+    }, 500);
     return `<div class="row">${fields}</div>`;
   }
 }
