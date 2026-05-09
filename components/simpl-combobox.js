@@ -33,13 +33,11 @@ export class SimplCombobox extends FormElement {
 
   change(value) {
     const text = value?.target?.value || '';
-    console.log('change', text);
     this.get(`${this.name || this.id}-list`).filterText = text;
     this.get(`${this.name || this.id}-list`).refresh();
   }
 
   blur() {
-    console.log('blur');
     this.get(`${this.name || this.id}-list`).validate();
     setTimeout(() => {
       this.get(`${this.name || this.id}-list`).open = false;
@@ -48,7 +46,6 @@ export class SimplCombobox extends FormElement {
   }
 
   focus() {
-    console.log('focus');
     this.get(`${this.name || this.id}-list`).open = true;
     this.change({ target: { value: this.text }});
     //this.get(`${this.name || this.id}-list`).refresh();
@@ -60,7 +57,6 @@ export class SimplCombobox extends FormElement {
       list.items = this._items;
       this.subscription?.();
       this.subscription = list.subscribe((action, data) => {
-        console.log(action, data);
         this.setField(this.name || this.id, data.id);
         this.text = data.text;
         this.refresh();

@@ -1,4 +1,4 @@
-import { StaticElement } from "../core/static-element.js";
+import { StaticElement } from '../core/static-element.js';
 
 export class SimplSpinner extends StaticElement {
   constructor() {

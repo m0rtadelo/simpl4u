@@ -47,11 +47,9 @@ export class SimplComboboxList extends FormElement {
       id: item.srcElement.id,
       text: item.srcElement.innerText,
     });
-    //console.log(item.srcElement);
-    //console.log(`${item.srcElement.id}-${item.srcElement.innerText}`);
   }
 
-    #notify(action, data) {
+  #notify(action, data) {
     for (const callback of this.#subscribers) {
       callback(action, data);
     }
