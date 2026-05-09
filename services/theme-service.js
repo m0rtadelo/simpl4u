@@ -1,4 +1,4 @@
-import { Config } from './config-service.js';
+import { StorageService } from './storage-service.js';
 export class ThemeService {
   static #_theme = '';
 
@@ -12,7 +12,7 @@ export class ThemeService {
   }
 
   static load() {
-    Config.storage.loadApp('_theme').then((theme) => {
+    StorageService.loadApp('_theme').then((theme) => {
       this.theme = theme || this.#getPreferredTheme();
     });
   }
@@ -22,7 +22,7 @@ export class ThemeService {
    */
   static set theme(mode) {
     document.documentElement.setAttribute('data-bs-theme', mode);
-    Config.storage.saveApp('_theme', mode);
+    StorageService.saveApp('_theme', mode);
     ThemeService.#_theme = mode;
   }
 

@@ -1,6 +1,7 @@
 import { Element } from './element.js';
 import { SimplModel } from '../models/simpl-model.js';
-import { Config } from '../services/config-service.js';
+import { StorageService } from '../services/storage-service.js';
+
 export class StaticElement extends Element {
   subscription;
   constructor() {
@@ -16,7 +17,7 @@ export class StaticElement extends Element {
   }
 
   disconnectedCallback() {
-    Config.storage.saveUser(this.context, this.model);
+    StorageService.saveUser(this.context, this.model);
     this.subscription?.();
   }
 

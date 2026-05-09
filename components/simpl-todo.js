@@ -1,8 +1,7 @@
 import { ReactiveElement } from '../core/reactive-element.js';
 import { ModalService } from '../services/modal-service.js';
-import { TextService } from '../services/text-service.js';
 import { SimplModel } from '../models/simpl-model.js';
-import { Config } from '../services/config-service.js';
+import { StorageService } from '../services/storage-service.js';
 
 export class SimplTodo extends ReactiveElement {
   form = this.getAttribute('form');
@@ -202,7 +201,7 @@ export class SimplTodo extends ReactiveElement {
 
   async saveData(model = this.model) {
     this.renameIds(model);
-    await Config.storage.saveApp(this.context, model || this.model);
+    await StorageService.saveApp(this.context, model || this.model);
   }
 
   renameIds(model = this.model) {
@@ -214,7 +213,7 @@ export class SimplTodo extends ReactiveElement {
   }
 
   async loadData() {
-    return await Config.storage.loadApp(this.context) || {};
+    return await StorageService.loadApp(this.context) || {};
   }
 
   movePanel(id, destiny, model = this.model) {

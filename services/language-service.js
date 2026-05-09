@@ -1,7 +1,7 @@
-import { Config } from './config-service.js';
 import { words as ca } from '../assets/i18n/ca.js';
 import { words as en } from '../assets/i18n/en.js';
 import { words as es } from '../assets/i18n/es.js';
+import { StorageService } from './storage-service.js';
 
 /**
  * LanguageService provides functionality for managing application language settings and translations.
@@ -27,7 +27,7 @@ export class LanguageService {
   }
 
   static load() {
-    Config.storage.loadApp('_lang').then((lang) => {
+    StorageService.loadApp('_lang').then((lang) => {
       LanguageService.lang = lang || 'en';
     });
   }
@@ -74,7 +74,7 @@ export class LanguageService {
       this.#lang = shortLang;
       LanguageService.#notify();
     }
-    Config.storage.saveApp('_lang', this.#lang);
+    StorageService.saveApp('_lang', this.#lang);
     document.documentElement.setAttribute('lang', shortLang);
   }
 

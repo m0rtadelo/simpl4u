@@ -1,8 +1,9 @@
 import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
-import { Config } from '../services/config-service.js';
+import { StorageService } from '../services/storage-service.js';
 export class Element extends HTMLElement {
+  static loaded = false;
   context = this.getAttribute('context') || 'global';
   name = this.getAttribute('name');
   id = this.getAttribute('id');
@@ -16,8 +17,8 @@ export class Element extends HTMLElement {
 
   constructor() {
     super();
-    if (!Config.loaded) {
-      Config.loaded = true;
+    if (!Element.loaded) {
+      Element.loaded = true;
       LanguageService.subscribe(() => {
         this.refresh();
       });
@@ -25,7 +26,7 @@ export class Element extends HTMLElement {
         this.refresh();
       });
       window.api.getLocale().then(async (result) => {
-        const userLang = await Config.storage.loadApp('_lang');
+        const userLang = await StorageService.loadApp('_lang');
         if (!userLang)
           LanguageService.lang = result || 'en';
       });
@@ -190,7 +191,7 @@ export class Element extends HTMLElement {
   }
 
   async loadViewState() {
-    const result = await Config.storage.loadUser(this.context);
+    const result = await StorageService.loadUser(this.context);
     if (result) {
       this.model = result;
     }

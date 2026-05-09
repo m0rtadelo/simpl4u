@@ -1,8 +1,8 @@
 import { StaticElement } from '../core/static-element.js';
 import { SimplModel } from '../models/simpl-model.js';
-import { Config } from '../services/config-service.js';
 import { LanguageService } from '../services/language-service.js';
 import { ModalService } from '../services/modal-service.js';
+import { StorageService } from '../services/storage-service.js';
 import { ToastService } from '../services/toast-service.js';
 
 /**
@@ -27,7 +27,7 @@ export class SimplCrud extends StaticElement {
 
   constructor() {
     super();
-    Config.storage.loadApp(this.context).then((model) => {
+    StorageService.loadApp(this.context).then((model) => {
       this.model = model || {
         data: []
       };
@@ -187,7 +187,7 @@ export class SimplCrud extends StaticElement {
     delete copy.filter;
     delete copy.order;
     delete copy.order_direction;
-    await Config.storage.saveApp(this.context, copy);
+    await StorageService.saveApp(this.context, copy);
   }
 
   /**
