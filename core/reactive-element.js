@@ -4,6 +4,7 @@ import { StorageService } from '../services/storage-service.js';
 
 export class ReactiveElement extends Element {
   subscription;
+  lastHtml = undefined;
   constructor() { 
     super();
     this.subscription?.();
@@ -29,8 +30,11 @@ export class ReactiveElement extends Element {
 
   update() {
     const templateHtml = this.template(this.model);
+    const html = this.getStyle().concat(templateHtml);
+    if (html === this.lastHtml) return;
     const container = document.createElement('div');
-    container.innerHTML = this.getStyle().concat(templateHtml);
+    container.innerHTML = html;
+    this.lastHtml = html;
     this.replaceChildren(...container.childNodes);
     this.#upgradeCustomElements(this);
     this.onReady();
