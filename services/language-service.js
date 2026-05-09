@@ -1,6 +1,8 @@
 import { words as ca } from '../assets/i18n/ca.js';
 import { words as en } from '../assets/i18n/en.js';
 import { words as es } from '../assets/i18n/es.js';
+import { words as de } from '../assets/i18n/de.js';
+import { words as ja } from '../assets/i18n/ja.js';
 import { StorageService } from './storage-service.js';
 
 /**
@@ -14,7 +16,7 @@ export class LanguageService {
 
   static {
     LanguageService.load();
-    LanguageService.#languages = { ca, en, es };
+    LanguageService.#languages = { ca, en, es, de, ja };
   }
 
   static load() {
@@ -22,6 +24,7 @@ export class LanguageService {
       LanguageService.lang = lang || 'en';
     });
   }
+
   /**
    * Subscribes to language changes.
    * 

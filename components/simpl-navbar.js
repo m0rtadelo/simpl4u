@@ -17,7 +17,9 @@ export class SimplNavBar extends ReactiveElement {
   languages = [
     { id: 'en', name: 'English' },
     { id: 'es', name: 'Español' },
-    { id: 'ca', name: 'Català' }
+    { id: 'ca', name: 'Català' },
+    { id: 'de', name: 'Deutsch' },
+    { id: 'ja', name: '日本語' }
   ];
 
   /** @returns {NavbarDefinition[]} */
