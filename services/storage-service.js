@@ -1,11 +1,27 @@
+import { StorageAdapter } from '../adapters/storage-adapter.js';
+
 export class StorageService {
+  static #adapter = StorageAdapter;
+  static #time = 50;
   static #key = 'simpl4u';
+
+  static {
+    setTimeout(() => {
+      StorageService.#time = 0;
+    }, 100);
+  }
 
   /**
    * Method to set the key used to store the data in the storage.
    */
   static set key(key) {
     this.#key = key;
+    // const timer = setInterval(() => {
+    //   if (!this.#time) {
+    //     clearInterval(timer);
+        this.#adapter.key = key;
+    //   }
+    // }, this.#time);
   }
 
   /**
@@ -15,123 +31,87 @@ export class StorageService {
     return this.#key;
   }
 
-  /**
-   * Method to retrieve the data stored in the app local storage. The data is persistent across sessions.
-   * @param {string} key of the data to be loaded
-   * @returns the json object stored in the app local storage
-   * @description This method loads the data from the app local storage. The data is stored in a json string.
-   */
-  static async loadApp(key) {
-    const map = this.#getAppMap();
-    return Promise.resolve(map[key]);
+  static setAdapter(adapter) {
+    this.#adapter = adapter;
+    this.#time = 0;
   }
 
-  /**
-   * Method to retrieve the data stored in the user session storage. The data is not persistent across sessions.
-   * @param {string} key of the data to be loaded
-   * @description This method loads the data from the user session storage. The data is stored in a json string.
-   * @returns the json object stored in the user session storage
-   */
-  static async loadUser(key) {
-    const map = this.#getUserMap();
-    return Promise.resolve(map[key]);
-  }
-
-  /**
-   * Method to retrieve the data stored in the system storage. The data is persistent across sessions and installations.
-   * @param {string} key of the data to be loaded
-   * @returns the json object stored in the system storage
-   * @description This method loads the data from the file system storage. The data is stored in a json string.
-   */
-  static async loadSystem(key) {
-    return Promise.resolve(JSON.parse(await window.api.loadSystem(key)));
-  }
-
-  /**
-   * Method to save the data in the app local storage. The data is persistent across sessions.
-   * @param {string} key of the data to be saved
-   * @param {JSON} value of the data to be saved
-   * @description This method saves the data in the app local storage. The data is stored in a json string.
-   */
   static async saveApp(key, value) {
-    const map = this.#getAppMap();
-    map[key] = value;
-    localStorage.setItem(this.#key, JSON.stringify(map));
-    return Promise.resolve(true);
+    return new Promise((resolve) => {
+      const timer = setInterval(() => {
+        clearInterval(timer);
+        this.#adapter.saveApp(key, value).then((model) => {
+          resolve(model);
+        });
+      }, this.#time);
+    });
   }
 
-  /**
-   * Method to retrieve the data stored in the app local storage. The data is persistent across sessions.
-   * @returns the json string stored in the app local storage
-   * @description This method loads the data from the app local storage. The data is stored in a json string.
-   */
-  static async loadAppModel() {
-    return Promise.resolve(localStorage.getItem(this.#key));
-  }
-  /**
-   * This method saves the data in the app local storage. The data is stored in a json string.
-   * @param {string} model tobe saved
-   * @description This method saves the data in the app local storage. The data is stored in a json string.
-   */
-  static async saveAppModel(model) {
-    localStorage.setItem(this.#key, model);
-    return Promise.resolve(true);
+  static async loadApp(data) {
+    return new Promise((resolve) => {
+      const timer = setInterval(() => {
+        clearInterval(timer);
+        this.#adapter.loadApp(data).then((model) => {
+          resolve(model);
+        });
+      }, this.#time);
+    });
   }
 
-  /**
-   * This method saves the data in the app session storage. The data is stored in a json string.
-   * @param {string} model tobe saved
-   * @description This method saves the data in the app session storage. The data is stored in a json string.
-   */
-  static async saveUserModel(model) {
-    sessionStorage.setItem(this.#key, model);
-    return Promise.resolve(true);
-  }
-  
-  /**
-   * Method to save the data in the user session storage. The data is not persistent across sessions.
-   * @param {string} key of the data to be saved
-   * @param {JSON} value of the data to be saved
-   * @description This method saves the data in the user session storage. The data is stored in a json string.
-   */
-  static async saveUser(key, value) {
-    const map = this.#getUserMap();
-    map[key] = value;
-    sessionStorage.setItem(this.#key, JSON.stringify(map));
-    return Promise.resolve(true);
+  static async loadUser(data) {
+    return new Promise((resolve) => {
+      this.#adapter.loadUser(data).then((model) => {
+        resolve(model);
+      });
+    });
   }
 
-  /**
-   * Method to save the data in the system storage. The data is persistent across sessions and installations.
-   * @param {string} key of the data to be saved
-   * @param {JSON} value of the data to be saved
-   * @description This method saves the data in the file system storage. The data is stored in a json string.
-   */
-  static async saveSystem(key, value) {
-    window.api.saveSystem(key, JSON.stringify(value));
-    return Promise.resolve(true);
+  static loadSystem(data) {
+    return new Promise((resolve) => {
+      this.#adapter.loadSystem(data).then((model) => {
+        resolve(model);
+      });
+    });
   }
 
-  /**
-   * Method to retrieve all the data stored in the app local storage. The data is persistent across sessions.
-   * @returns {JSON} the json object stored in the app local storage
-   */
-  static #getAppMap() {
-    let result;
-    try {
-      result = JSON.parse(localStorage.getItem(this.#key));
-    } catch (error) {
-      result = {};
-    }
-    return result;
+  static loadAppModel() {
+    return new Promise((resolve) => {
+      this.#adapter.loadAppModel().then((model) => {
+        resolve(model);
+      });
+    });
   }
 
-  /**
-   * Method to retrieve all the data stored in the user session storage. The data is not persistent across sessions.
-   * @returns {JSON} the json object stored in the user session storage
-   */
-  static #getUserMap() {
-    return JSON.parse(sessionStorage.getItem(this.#key) || '{}');
+  static saveAppModel(model) {
+    return new Promise((resolve) => {
+      this.#adapter.saveAppModel(model).then((model) => {
+        resolve(model);
+      });
+    });
   }
 
+  static saveUserModel(model) {
+    return new Promise((resolve) => {
+      this.#adapter.saveUserModel(model).then((model) => {
+        resolve(model);
+      });
+    });
+  }  
+
+  static saveUser(key, value) {
+    return new Promise((resolve) => {
+      this.#adapter.saveUser(key, value).then((model) => {
+        resolve(model);
+      });
+    });
+  }       
+
+  static saveSystem(key, value) {
+    return new Promise((resolve) => {
+      this.#adapter.saveSystem(key, value).then((model) => {
+        resolve(model);
+      });
+    });
+  }  
 }
+

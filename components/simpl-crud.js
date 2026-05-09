@@ -112,7 +112,7 @@ export class SimplCrud extends StaticElement {
       }
       this.model.data = this.model.data || [];
       this.model.data.push(this.#addIndex(modalData));
-      this.#saveData();
+      await this.#saveData();
       ToastService.success(LanguageService.i18n('record-created'));
     }
   }
@@ -124,21 +124,25 @@ export class SimplCrud extends StaticElement {
    */
   async doEdit(item) {
     SimplModel.set(JSON.parse(JSON.stringify(item)), undefined, '__simpl-modal');
-    if (await ModalService.open(this.#generateForm(), 'edit-record')) {
-      const modified = SimplModel.model['__simpl-modal'];
-      let modelData = JSON.parse(JSON.stringify(this.model.data));
-      modelData = modelData.filter((dataItem) => JSON.stringify(dataItem) !== JSON.stringify(item));
-      if (await this.#hasUnique(modified, modelData)) {
-        this.doEdit(item);
-        return;
+    setTimeout(async () => {
+      if (await ModalService.open(this.#generateForm(), 'edit-record')) {
+        const modified = SimplModel.model['__simpl-modal'];
+        let modelData = JSON.parse(JSON.stringify(this.model.data));
+        modelData = modelData.filter((dataItem) => JSON.stringify(dataItem) !== JSON.stringify(item));
+        if (await this.#hasUnique(modified, modelData)) {
+          this.doEdit(item);
+          return;
+        }
+        this.model.data.forEach((dataItem, index) => {
+          if (JSON.stringify(dataItem) === JSON.stringify(item)) {
+            this.model.data[index] = modified;
+            item = {}; // Avoid modifying the item again in case of multiple matches
+          }
+        });
+        await this.#saveData();
+        ToastService.success(LanguageService.i18n('record-updated'));
       }
-      SimplModel.set(item, undefined, '__simpl-modal');
-      Object.keys(modified).forEach((key) => {
-        SimplModel.set(modified[key], key, '__simpl-modal');
-      });
-      this.#saveData();
-      ToastService.success(LanguageService.i18n('record-updated'));
-    }
+    });
   }
 
   /**
@@ -168,7 +172,7 @@ export class SimplCrud extends StaticElement {
         }
       }
       this.model.data = result;
-      this.#saveData();
+      await this.#saveData();
       ToastService.success(LanguageService.i18n('record-deleted'));
     }
   }
@@ -178,12 +182,12 @@ export class SimplCrud extends StaticElement {
    * 
    * @private
    */
-  #saveData() {
+  async #saveData() {
     const copy = {...this.model};
     delete copy.filter;
     delete copy.order;
     delete copy.order_direction;
-    Config.storage.saveApp(this.context, copy);
+    await Config.storage.saveApp(this.context, copy);
   }
 
   /**
