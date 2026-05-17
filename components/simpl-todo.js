@@ -164,7 +164,7 @@ export class SimplTodo extends ReactiveElement {
       item.id = `${type}_${index}`;
     });
     this.model[type] = state[type];
-    return this.renderItemsFn?.(JSON.parse(JSON.stringify(state)), type);
+    return this.renderItemsFn?.(JSON.parse(JSON.stringify(state)), type) || '';
     // let result = '';
     // state[type]?.sort((a, b) => {
     //   if (a?.date && b?.date) {

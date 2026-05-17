@@ -8,13 +8,14 @@ export class SimplSelect extends FormElement {
     if (typeof this._items === 'string') {
       this._items = JSON.parse(this._items);
     }
+    this.setValueWhenAllItemsAreSet();
   }
 
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
 <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<select class="form-select" ${super.isRequired()} (change)="change" aria-label="${this.label}">
+<select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${this.label}">
 ${ this.items.map(item => `
   <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
 `) }
@@ -25,6 +26,12 @@ ${ this.items.map(item => `
 
   change(value) {
     this.setField(this.name || this.id, value.target.value);
+  }
+
+  setValueWhenAllItemsAreSet() {
+    if (this.items.length > 0 && this.model[this.name || this.id] === undefined) {
+      this.setField(this.name || this.id, this.items[0].id);
+    }
   }
 }
 customElements.define('simpl-select', SimplSelect);

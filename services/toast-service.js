@@ -3,7 +3,9 @@
  * It supports different types of notifications such as success, error, warning, and info.
  */
 export class ToastService {
-
+  static duration = 5000;
+  static dismissible = true;
+  static position = { x: 'right', y: 'top' };
   static {
     /**
      * Initializes the Notyf instance with custom notification types.
@@ -11,8 +13,9 @@ export class ToastService {
      */
     // eslint-disable-next-line no-undef
     this.notyf = new Notyf({
-      duration: 5000,
-      dismissible: true,
+      duration: this.duration,
+      dismissible: this.dismissible,
+      position: this.position,
       types: [
         {
           type: 'info',

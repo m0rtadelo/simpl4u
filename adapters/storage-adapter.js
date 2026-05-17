@@ -122,7 +122,7 @@ export class StorageAdapter {
     } catch (error) {
       result = {};
     }
-    return result;
+    return result || {};
   }
 
   /**
@@ -130,6 +130,6 @@ export class StorageAdapter {
    * @returns {JSON} the json object stored in the user session storage
    */
   static #getUserMap() {
-    return JSON.parse(sessionStorage.getItem(this.#key) || '{}');
+    return JSON.parse(sessionStorage.getItem(this.#key) || '{}') || {};
   }
 }

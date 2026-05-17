@@ -12,6 +12,7 @@ export class Element extends HTMLElement {
   hidden = this.hasAttribute('hidden');
   disabled = this.hasAttribute('disabled');
   timerRef = undefined;
+  loadViewStateTimer = undefined;
   style = '';
   _items;
 
@@ -19,10 +20,10 @@ export class Element extends HTMLElement {
     super();
     if (!Element.loaded) {
       Element.loaded = true;
-      LanguageService.subscribe(() => {
+      RouterService.subscribe(() => {
         this.refresh();
       });
-      RouterService.subscribe(() => {
+      LanguageService.subscribe(() => {
         this.refresh();
       });
       window.api.getLocale().then(async (result) => {
@@ -190,11 +191,22 @@ export class Element extends HTMLElement {
     SimplModel.set(value, id, this.context);
   }
 
+  getName() {
+    return this.name || this.id;
+  }
+
   async loadViewState() {
-    const result = await StorageService.loadUser(this.context);
-    if (result) {
-      this.model = result;
-    }
-    this.refresh();
+    clearTimeout(this.loadViewStateTimer);
+    this.loadViewStateTimer = setTimeout(async () => {
+      const result = await StorageService.loadUser(this.context);
+      if (result) {
+        this.model = result;
+      }
+      this.refresh();
+    }, 10);
+  }
+
+  async saveViewState() {
+    StorageService.saveUser(this.context, this.model);
   }
 }

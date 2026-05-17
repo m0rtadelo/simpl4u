@@ -1,6 +1,5 @@
 import { Element } from './element.js';
 import { SimplModel } from '../models/simpl-model.js';
-import { StorageService } from '../services/storage-service.js';
 
 export class ReactiveElement extends Element {
   subscription;
@@ -19,7 +18,7 @@ export class ReactiveElement extends Element {
   }
 
   disconnectedCallback() {
-    StorageService.saveUser(this.context, this.model);
+    this.saveViewState();
     this.subscription?.();
   }
 

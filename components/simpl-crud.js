@@ -14,6 +14,7 @@ import { ToastService } from '../services/toast-service.js';
  * @property {boolean} unique - Indicates if the field must have a unique value.
  * @property {boolean} index - Indicates if the field is an index/key (new items will be created with the last index + 1).
  * @property {string} type - The type of the field (e.g., 'input', 'date').
+ * @property {string} items - For select fields, a JSON string representing the options (e.g., '[{"id": "1", "text": "Option 1"}, {"id": "2", "text": "Option 2"}]').
  */
 
 /**
@@ -247,7 +248,7 @@ export class SimplCrud extends StaticElement {
       if (!focusToField && !field.hidden && !readonly) {
         focusToField = field.name;
       }
-      return `<simpl-${type} class="${field.class}" context="__simpl-modal" ${field.required  && !(field.disabled || readonly) ? 'required' : ''} name="${field.name}" ${field.hidden ? 'hidden' : ''} ${field.disabled || readonly ? 'disabled' : ''}></simpl-${type}>`;
+      return `<simpl-${type} class="${field.class}" ${field.items ? `items='${field.items}'` : ''} context="__simpl-modal" ${field.required  && !(field.disabled || readonly) ? 'required' : ''} name="${field.name}" ${field.hidden ? 'hidden' : ''} ${field.disabled || readonly ? 'disabled' : ''}></simpl-${type}>`;
     }).join('\n');
     setTimeout(() => {
       if (focusToField) {

@@ -64,12 +64,12 @@ export class SimplModel {
     return () => SimplModel.#subscribers.delete(callback);
   }
 
-  static #notify() {
+  static #notify(property) {
     const actualModel = JSON.stringify(SimplModel.#model);
     if (actualModel === SimplModel.#lastNotifiedModel) return;
     SimplModel.#lastNotifiedModel = actualModel;
     for (const callback of SimplModel.#subscribers) {
-      callback(SimplModel.#model);
+      callback(SimplModel.#model, property);
     }
   }
 
@@ -84,7 +84,7 @@ export class SimplModel {
         target[property] = value;
         clearTimeout(SimplModel.notifyTimeout);
         SimplModel.notifyTimeout = setTimeout(() => {
-          SimplModel.#notify();
+          SimplModel.#notify(property);
         } , 20);
         return true;
       },

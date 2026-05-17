@@ -14,3 +14,4 @@ import './simpl-spinner.js';
 import './simpl-todo.js';
 import './simpl-combobox.js';
 import './simpl-combobox-list.js';
+import './simpl-checkboxes.js';

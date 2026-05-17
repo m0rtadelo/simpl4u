@@ -1,14 +1,13 @@
 import { Element } from './element.js';
 import { SimplModel } from '../models/simpl-model.js';
-import { StorageService } from '../services/storage-service.js';
 
 export class StaticElement extends Element {
   subscription;
   constructor() {
     super();
     this.subscription?.();
-    this.subscription = SimplModel.subscribe(model => {
-      this.onUpdateState();
+    this.subscription = SimplModel.subscribe((model, property) => {
+      this.onUpdateState(property);
     });    
   }
 
@@ -17,7 +16,7 @@ export class StaticElement extends Element {
   }
 
   disconnectedCallback() {
-    StorageService.saveUser(this.context, this.model);
+    this.saveViewState();
     this.subscription?.();
   }
 
