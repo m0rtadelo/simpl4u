@@ -1,9 +1,26 @@
 import { LanguageService } from './language-service.js';
 
 export class ModalService {
+  /**
+   * Static ID for the default Bootstrap modal.
+   * @type {string}
+   */
   static modalId = 'myBootstrapModal';
+
+  /**
+   * Static ID for an alternative Bootstrap modal.
+   * @type {string}
+   */
   static modalId2 = 'myBootstrapModal2';
 
+  /**
+   * Shows a message modal with the specified text and title (default is 'message').
+   * Translates text and title using LanguageService.i18n if available.
+   *
+   * @param {string} text - The content of the modal body.
+   * @param {string} [title='message'] - Title of the modal header.
+   * @return {Promise<undefined>} A promise that resolves once the modal is closed.
+   */
   static async message(text, title = 'message') {
     text = LanguageService.i18n(text);
     return this.#handleModal(`
@@ -18,7 +35,7 @@ export class ModalService {
                 ${text}
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes" >${LanguageService.i18n('close')}</button>
+                <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes">${LanguageService.i18n('close')}</button>
               </div>
             </div>
           </div>
@@ -26,6 +43,14 @@ export class ModalService {
             `);
   }
 
+  /**
+   * Shows a confirmation modal with the specified text and title (default is 'confirm').
+   * Translates text and title using LanguageService.i18n if available.
+   *
+   * @param {string} text - The content of the modal body.
+   * @param {string} [title='confirm'] - Title of the modal header.
+   * @return {Promise<boolean>} A promise that resolves to true if 'Yes' is clicked, or false otherwise.
+   */
   static async confirm(text, title = 'confirm') {
     text = LanguageService.i18n(text);
     return this.#handleModal(`
@@ -41,7 +66,7 @@ export class ModalService {
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${LanguageService.i18n('no')}</button>
-                <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes" >${LanguageService.i18n('yes')}</button>
+                <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes">${LanguageService.i18n('yes')}</button>
               </div>
             </div>
           </div>
@@ -49,6 +74,15 @@ export class ModalService {
             `);
   }
 
+  /**
+   * Shows a prompt modal with the specified text, title (default is 'prompt'), and initial value.
+   * Translates text and title using LanguageService.i18n if available.
+   *
+   * @param {string} text - The label for the input field in the modal body.
+   * @param {string} [title='prompt'] - Title of the modal header.
+   * @param {string} [value=''] - Initial value for the input field.
+   * @return {Promise<string|undefined>} A promise that resolves to the entered value if 'Accept' is clicked, or undefined otherwise.
+   */
   static async prompt(text, title = 'prompt', value = '') {
     text = LanguageService.i18n(text);
     return this.#handleModal(`
@@ -67,7 +101,7 @@ export class ModalService {
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${LanguageService.i18n('cancel')}</button>
-              <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes" >${LanguageService.i18n('accept')}</button>
+              <button type="button" class="btn btn-primary" id="${this.modalId}_click_yes">${LanguageService.i18n('accept')}</button>
             </div>
           </div>
         </div>
@@ -75,6 +109,15 @@ export class ModalService {
           `);
   }
 
+  /**
+   * Opens a custom modal with the specified body, title (default is ''), and optional hideCancel flag.
+   * Translates title using LanguageService.i18n if available.
+   *
+   * @param {string} body - The HTML content of the modal body.
+   * @param {string} [title=''] - Title of the modal header.
+   * @param {boolean} [hideCancel=false] - If true, hides the 'Cancel' button.
+   * @return {Promise<boolean>} A promise that resolves to true if 'Accept' is clicked, or false otherwise.
+   */
   static async open(body, title = '', hideCancel = false) {
     return this.#handleOpenModal(`
       <div class="modal fade" id="${this.modalId2}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -92,7 +135,7 @@ export class ModalService {
             <div class="modal-footer">
             ${body.includes(' required ') ? `<span class="form-text"><span style="color: var(--bs-form-invalid-color)">* </span><span>${LanguageService.i18n('required-fields')}</span></span>` : ''}
             ${hideCancel ? '' : `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${LanguageService.i18n('cancel')}</button>`}
-              <button type="submit" class="btn btn-primary" id="${this.modalId2}_click_yes" >${LanguageService.i18n('accept')}</button>
+              <button type="submit" class="btn btn-primary" id="${this.modalId2}_click_yes">${LanguageService.i18n('accept')}</button>
             </div>
           </div>
         </div>
@@ -102,6 +145,12 @@ export class ModalService {
 
   }
 
+  /**
+   * Handles opening a modal and resolving when it is closed.
+   *
+   * @param {string} modal - HTML content of the modal to open.
+   * @return {Promise<boolean>} A promise that resolves to true if 'Accept' is clicked, or false otherwise.
+   */
   static async #handleOpenModal(modal) {
     this.#deleteModal(this.modalId2);
     document.body.insertAdjacentHTML('beforeend', modal);
@@ -125,6 +174,12 @@ export class ModalService {
     });
   }
 
+  /**
+   * Handles opening a modal with input and resolves when it is closed.
+   *
+   * @param {string} modal - HTML content of the modal to open, expected to include an input field with id 'formInput'.
+   * @return {Promise<string|undefined>} A promise that resolves to the value in the input field if 'Accept' is clicked, or undefined otherwise.
+   */
   static async #handleModal(modal) {
     this.#deleteModal();
     document.body.insertAdjacentHTML('beforeend', modal);
@@ -155,6 +210,11 @@ export class ModalService {
     });
   }
 
+  /**
+   * Deletes a modal from the DOM.
+   *
+   * @param {string} [id] - ID of the modal to delete. Uses static modalId if not provided.
+   */
   static #deleteModal(id) {
     const modalElement = document.getElementById(id || this.modalId);
     modalElement?.remove();

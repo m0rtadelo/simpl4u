@@ -1,3 +1,6 @@
+/**
+ * StorageAdapter class provides a unified interface to interact with different types of storage such as app local, user session, and system storage.
+ */
 export class StorageAdapter {
   static #key = 'simpl4u';
   /**

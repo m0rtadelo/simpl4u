@@ -3,9 +3,13 @@
  * It stores data by context and notifies subscribers whenever the model changes.
  */
 export class SimplModel {
+  static #proxyCache = new WeakMap();
+  static #proxies = new WeakSet();
+  static #rawCache = new WeakMap();
   static #model = SimplModel.#createReactiveModel({});
   static #subscribers = new Set();
   static #lastNotifiedModel = '';
+  static notifyTimeout;
 
   /**
    * Replace the whole reactive model.
@@ -73,19 +77,36 @@ export class SimplModel {
     }
   }
 
+  /**
+   * Initializes the model context if it does not exist.
+   * @param {string} context - The model context namespace.
+   */
   static #initContext(context) {
-    if (context && !SimplModel.#model[context])
+    if (context && !SimplModel.#model[context]) {
       SimplModel.#model[context] = {};
+    }
   }
 
+  /**
+   * Creates a reactive model using a Proxy object.
+   * @param {object} obj - The initial model object.
+   * @returns {Proxy<object>} - A reactive model proxy.
+   */
   static #createReactiveModel(obj) {
+    if (this.#proxies.has(obj)) {
+      return obj;
+    }
+    if (this.#proxyCache.has(obj)) {
+      return this.#proxyCache.get(obj);
+    }
+
     const handler = {
       set: (target, property, value) => {
-        target[property] = value;
+        target[property] = SimplModel.#rawCache.get(value) ?? value;
         clearTimeout(SimplModel.notifyTimeout);
         SimplModel.notifyTimeout = setTimeout(() => {
           SimplModel.#notify(property);
-        } , 20);
+        }, 20);
         return true;
       },
       get: (target, property) => {
@@ -104,6 +125,11 @@ export class SimplModel {
       }
     };
 
-    return new Proxy(obj, handler);
+    const proxy = new Proxy(obj, handler);
+    this.#proxyCache.set(obj, proxy);
+    this.#proxies.add(proxy);
+    this.#rawCache.set(proxy, obj);
+    return proxy;
   }
 }
+

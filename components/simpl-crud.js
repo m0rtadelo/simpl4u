@@ -103,8 +103,16 @@ export class SimplCrud extends StaticElement {
    * @param {boolean} [keepData=false] - Whether to keep the existing modal data.
    */
   async doCreate(keepData = false) {
-    if (!keepData)
-      SimplModel.set({}, undefined, '__simpl-modal');
+    if (!keepData) {
+      const defaults = {};
+      for (const f of this.form) {
+        if (f.type === 'select' && f.items) {
+          const items = JSON.parse(f.items);
+          if (items.length) defaults[f.name] = items[0].id;
+        }
+      }
+      SimplModel.set(defaults, undefined, '__simpl-modal');
+    }
     if (await ModalService.open(this.#generateForm(), 'new-record' )) {
       const modalData = SimplModel.model['__simpl-modal'];
       if (await this.#hasUnique(modalData, this.model.data)) {

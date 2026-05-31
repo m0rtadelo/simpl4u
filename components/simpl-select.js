@@ -8,7 +8,14 @@ export class SimplSelect extends FormElement {
     if (typeof this._items === 'string') {
       this._items = JSON.parse(this._items);
     }
-    this.setValueWhenAllItemsAreSet();
+  }
+
+  connectedCallback() {
+    super.connectedCallback?.();
+    if (!this._defaultSet) {
+      this._defaultSet = true;
+      this.setValueWhenAllItemsAreSet();
+    }
   }
 
   template(state) {
@@ -29,7 +36,7 @@ ${ this.items.map(item => `
   }
 
   setValueWhenAllItemsAreSet() {
-    if (this.items.length > 0 && this.model[this.name || this.id] === undefined) {
+    if (this.items.length > 0 && this.model[this.name || this.id] == null) {
       this.setField(this.name || this.id, this.items[0].id);
     }
   }

@@ -28,8 +28,10 @@ export class RouterService {
   }
 
   static setView(view) {
-    RouterService.view = view;
-    RouterService.#notify();
+    if (RouterService.view === view) {
+      return;
+    }
+    window.location.hash = view;
   }
 
   /**
