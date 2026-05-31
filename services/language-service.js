@@ -79,6 +79,7 @@ export class LanguageService {
    */
   static set(languages) {
     Object.keys(languages).forEach((key) => {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
       LanguageService.#languages[key] = { ...LanguageService.#languages[key], ...languages[key] };
     });
   }

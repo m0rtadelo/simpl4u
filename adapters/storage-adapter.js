@@ -1,5 +1,9 @@
 /**
  * StorageAdapter class provides a unified interface to interact with different types of storage such as app local, user session, and system storage.
+ *
+ * NOTE: Data is stored as plaintext JSON. localStorage and sessionStorage are
+ * readable by any JS on the same origin. Do not store sensitive information
+ * (auth tokens, secrets, PII) without additional encryption.
  */
 export class StorageAdapter {
   static #key = 'simpl4u';
@@ -46,7 +50,12 @@ export class StorageAdapter {
    * @description This method loads the data from the file system storage. The data is stored in a json string.
    */
   static async loadSystem(key) {
-    return Promise.resolve(JSON.parse(await window.api.loadSystem(key)));
+    if (typeof window.api === 'undefined') return Promise.resolve(null);
+    try {
+      return Promise.resolve(JSON.parse(await window.api.loadSystem(key)));
+    } catch {
+      return Promise.resolve(null);
+    }
   }
 
   /**
@@ -110,7 +119,9 @@ export class StorageAdapter {
    * @description This method saves the data in the file system storage. The data is stored in a json string.
    */
   static async saveSystem(key, value) {
-    window.api.saveSystem(key, JSON.stringify(value));
+    if (typeof window.api !== 'undefined') {
+      window.api.saveSystem(key, JSON.stringify(value));
+    }
     return Promise.resolve(true);
   }
 
@@ -122,7 +133,7 @@ export class StorageAdapter {
     let result;
     try {
       result = JSON.parse(localStorage.getItem(this.#key));
-    } catch (error) {
+    } catch {
       result = {};
     }
     return result || {};
@@ -133,6 +144,10 @@ export class StorageAdapter {
    * @returns {JSON} the json object stored in the user session storage
    */
   static #getUserMap() {
-    return JSON.parse(sessionStorage.getItem(this.#key) || '{}') || {};
+    try {
+      return JSON.parse(sessionStorage.getItem(this.#key) || '{}') || {};
+    } catch {
+      return {};
+    }
   }
 }

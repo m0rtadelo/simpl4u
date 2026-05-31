@@ -26,11 +26,13 @@ export class Element extends HTMLElement {
       LanguageService.subscribe(() => {
         this.refresh();
       });
-      window.api.getLocale().then(async (result) => {
-        const userLang = await StorageService.loadApp('_lang');
-        if (!userLang)
-          LanguageService.lang = result || 'en';
-      });
+      if (typeof window.api !== 'undefined') {
+        window.api.getLocale().then(async (result) => {
+          const userLang = await StorageService.loadApp('_lang');
+          if (!userLang)
+            LanguageService.lang = result || 'en';
+        }).catch(() => {});
+      }
     }
   }
 
@@ -66,12 +68,14 @@ export class Element extends HTMLElement {
         const events = Object.values(el.attributes).filter((key) => key.name.startsWith('(') && key.name.endsWith(')')) || [];
         events.forEach((event) => {
           const eventName = event.name.substring(1, event.name.length - 1);
-          if (this[event.value]) {
+          const methodName = event.value;
+          if (methodName === '__proto__' || methodName === 'constructor' || methodName === 'prototype') return;
+          if (typeof this[methodName] === 'function') {
             try {
-              el.removeEventListener(eventName, this[event.value]);
-              el.addEventListener(eventName, this[event.value].bind(this));
+              el.removeEventListener(eventName, this[methodName]);
+              el.addEventListener(eventName, this[methodName].bind(this));
             } catch (error) {
-              console.error('Error adding event listener', eventName, event.value, error);
+              console.error('Error adding event listener', eventName, methodName, error);
             }
           }
         });
@@ -149,7 +153,7 @@ export class Element extends HTMLElement {
   * @returns {string} The modified CSS string with the tag name prepended.
   */
   prependTagNameToCSS(cssString, tagName) {
-    return cssString.replace(/([^\{\}]+)\s*\{/g, (match, selectors) => {
+    return cssString.replace(/([^{}]+)\s*\{/g, (match, selectors) => {
       // Clean up selectors and add the tag
       const updatedSelectors = selectors
         .split(',')

@@ -2,6 +2,7 @@ import { ReactiveElement } from '../core/reactive-element.js';
 import { ModalService } from '../services/modal-service.js';
 import { SimplModel } from '../models/simpl-model.js';
 import { StorageService } from '../services/storage-service.js';
+import { TextService } from '../services/text-service.js';
 
 export class SimplTodo extends ReactiveElement {
   form = this.getAttribute('form');
@@ -87,6 +88,9 @@ export class SimplTodo extends ReactiveElement {
     event.preventDefault();
     const id = event.dataTransfer.getData('text/plain');
     const destiny = event.target.closest('.col');
+    if (!/^[_a-zA-Z][_a-zA-Z0-9]*$/.test(id) && !/^_panel_[_a-zA-Z][_a-zA-Z0-9]*$/.test(id)) {
+      return;
+    }
     if (id.startsWith('_panel_')) {
       this.model = this.movePanel(id, destiny, this.model);
     } else if (destiny.id) {
@@ -97,6 +101,9 @@ export class SimplTodo extends ReactiveElement {
   async onDropDelete(event) {
     event.preventDefault();
     let id = event.dataTransfer.getData('text/plain');
+    if (!/^[_a-zA-Z][_a-zA-Z0-9]*$/.test(id) && !/^_panel_[_a-zA-Z][_a-zA-Z0-9]*$/.test(id)) {
+      return;
+    }
     await this.deleteItem(id, this.model);
   }
 
@@ -122,13 +129,14 @@ export class SimplTodo extends ReactiveElement {
   renderPanels(state) {
     let result = '';
     Object.keys(state)?.forEach(key => {
+      const safeKey = TextService.htmlEscape(key);
       result += `
-      <div class="col dotted" draggable="true" id="_panel_${key}" (drop)="onDrop" (dragover)="onDragOver" (dragstart)="drag">
+      <div class="col dotted" draggable="true" id="_panel_${safeKey}" (drop)="onDrop" (dragover)="onDragOver" (dragstart)="drag">
         <div class="row">
-          <div class="col pointer" name="${key}">
-            <h3 (click)="setPanelName">${key}</h3>
+          <div class="col pointer" name="${safeKey}">
+            <h3 (click)="setPanelName">${safeKey}</h3>
           </div>
-          <div class="col text-end" name="${key}">
+          <div class="col text-end" name="${safeKey}">
             <h5 class="bi clickable bi-plus-square mt-2 panel-icon" (click)="onAddToDo"></h5>
           </div>
         </div>

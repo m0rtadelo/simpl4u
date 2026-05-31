@@ -36,7 +36,9 @@ export class FileService {
         elem.click();
         document.body.removeChild(elem);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.warn('FileService.download failed', error);
+    }
   }
 
   /**
@@ -50,6 +52,7 @@ export class FileService {
    * @returns {Promise<boolean>} Promise resolving to operation success
    */
   static writeFileSync(path, data, options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(false);
     return window.api.writeFile(path, data, options);
   }
 
@@ -60,6 +63,7 @@ export class FileService {
    * @returns {Promise<boolean>}
    */
   static mkdir(dirPath, options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(false);
     return window.api.mkdir(dirPath, options);
   }
 
@@ -69,6 +73,7 @@ export class FileService {
    * @returns {Promise<string|null>} Selected folder path or null when cancelled.
    */
   static selectDirectory(options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(null);
     return window.api.selectDirectory(options);
   }
 
@@ -78,6 +83,7 @@ export class FileService {
    * @returns {Promise<string[]|null>} Array of directory entry names or null if an error occurs
    */
   static ls(dirPath) {
+    if (typeof window.api === 'undefined') return Promise.resolve(null);
     return window.api.ls(dirPath);
   }
 
@@ -89,6 +95,7 @@ export class FileService {
    * @returns {Promise<boolean>} Promise resolving to `true` on success or `false` on error
    */
   static cp(source, destination, options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(false);
     return window.api.cp(source, destination, options);
   }
 
@@ -99,6 +106,7 @@ export class FileService {
    * @returns {Promise<boolean>} Promise resolving to `true` on success or `false` on error
    */
   static rm(targetPath, options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(false);
     return window.api.rm(targetPath, options);
   }
 
@@ -109,6 +117,7 @@ export class FileService {
    * @returns {Promise<boolean>} Promise resolving to `true` on success or `false` on error
    */
   static rmdir(dirPath, options) {
+    if (typeof window.api === 'undefined') return Promise.resolve(false);
     return window.api.rmdir(dirPath, options);
   }
 
@@ -120,6 +129,7 @@ export class FileService {
    * @returns {Promise<string|null>} File contents or `null` when an error occurs
    */
   static readFile(path, encoding) {
+    if (typeof window.api === 'undefined') return Promise.resolve(null);
     return window.api.readFile(path, encoding);
   }
 }

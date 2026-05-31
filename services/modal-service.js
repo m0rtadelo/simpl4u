@@ -1,4 +1,5 @@
 import { LanguageService } from './language-service.js';
+import { TextService } from './text-service.js';
 
 export class ModalService {
   /**
@@ -96,7 +97,7 @@ export class ModalService {
             <div class="modal-body">
               <div class="mb-3">
                 <label for="formInput" class="form-label">${text}</label>
-                <input type="text" class="form-control" autofocus="true" id="formInput" value="${value}">
+                <input type="text" class="form-control" autofocus="true" id="formInput" value="${TextService.htmlEscape(value)}">
               </div>              
             </div>
             <div class="modal-footer">

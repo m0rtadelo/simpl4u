@@ -177,10 +177,10 @@ export class SimplTable extends ReactiveElement {
    */
   renderHeaders() {
     const headers = this.getHeaders();
-    return headers.map((header) => `<th id="${header}" style="cursor: pointer">
+    return headers.map((header) => `<th id="${TextService.htmlEscape(header)}" style="cursor: pointer">
     ${this.model['order'] === header && this.model['order_direction'] == 'asc' ? '<span class="bi bi-arrow-up"></span>' : ''}
     ${this.model['order'] === header && this.model['order_direction'] == 'desc' ? '<span class="bi bi-arrow-down"></span>' : ''}
-    ${LanguageService.i18n(header)}
+    ${TextService.htmlEscape(LanguageService.i18n(header))}
     </th>`).join('\n');
   }
 

@@ -6,7 +6,7 @@ export class SimplSelect extends FormElement {
     super();
     this._items = this.getAttribute('items') || [];
     if (typeof this._items === 'string') {
-      this._items = JSON.parse(this._items);
+      try { this._items = JSON.parse(this._items); } catch { this._items = []; }
     }
   }
 

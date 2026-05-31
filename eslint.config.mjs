@@ -4,8 +4,9 @@ import globals from 'globals';
 
 
 export default defineConfig([
+  { ignores: ['lib/**'] },
   { files: ['**/*.{js,mjs,cjs}'], plugins: { js }, extends: ['js/recommended'] },
-  { files: ['**/*.{js,mjs,cjs}'], languageOptions: { globals: globals.browser } },
+  { files: ['**/*.{js,mjs,cjs}'], languageOptions: { globals: { ...globals.browser, toExcel: 'readonly' } } },
   { rules: {
     indent: ['error', 2], // match .editorconfig
     'linebreak-style': ['error', 'unix'],

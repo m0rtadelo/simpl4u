@@ -107,7 +107,8 @@ export class SimplCrud extends StaticElement {
       const defaults = {};
       for (const f of this.form) {
         if (f.type === 'select' && f.items) {
-          const items = JSON.parse(f.items);
+          let items;
+          try { items = JSON.parse(f.items); } catch { items = []; }
           if (items.length) defaults[f.name] = items[0].id;
         }
       }
@@ -244,12 +245,9 @@ export class SimplCrud extends StaticElement {
    * @returns {string} The generated form HTML.
    */
   #generateForm(readonly = false) {
-    const items = 
-    JSON.parse(
-      JSON.stringify(
-        this.form.length ? this.form : this.get('simpl-table').getHeaders().map((header) => ({ name: header }))
-      )
-    );
+    const items = JSON.parse(JSON.stringify(
+      this.form.length ? this.form : this.get('simpl-table').getHeaders().map((header) => ({ name: header }))
+    ));
     let focusToField = '';
     const fields = items.map((field) => {
       const type = field.type || 'input';

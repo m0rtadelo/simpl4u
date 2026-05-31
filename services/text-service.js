@@ -15,12 +15,32 @@ export class TextService {
     
   /**
      * Escapes HTML special characters in a string to prevent XSS attacks.
-     * 
+     *
      * @param {string} value - The input string to sanitize.
      * @returns {string} The sanitized string with HTML special characters escaped.
      */
   static sanitize(value) {
-    return (value || '').toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return TextService.htmlEscape(value);
+  }
+
+  /**
+   * Escapes HTML special characters (&, <, >, ", ') for safe interpolation
+   * into both text content and HTML attribute contexts.
+   *
+   * @param {*} value - The value to escape.
+   * @returns {string} The escaped string.
+   */
+  static htmlEscape(value) {
+    return (value ?? '').toString().replace(/[&<>"']/g, (ch) => {
+      switch (ch) {
+      case '&': return '&amp;';
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '"': return '&quot;';
+      case '\'': return '&#39;';
+      default: return ch;
+      }
+    });
   }
   
   /**

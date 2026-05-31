@@ -1,5 +1,6 @@
 import { FormElement } from '../core/form-element.js';
 import { LanguageService } from '../services/language-service.js';
+import { TextService } from '../services/text-service.js';
 
 export class SimplComboboxList extends FormElement {
   #subscribers = new Set();
@@ -16,8 +17,8 @@ export class SimplComboboxList extends FormElement {
     return !this.open ? '' : `
       <ul class="list-group">
         ${this.items.map(item => item.id.toLowerCase().includes(this.filterText.toLowerCase()) || item.text.toLowerCase().includes(this.filterText.toLowerCase()) ? `
-          <li class="list-group-item" id="${item.id}" (click)="selectItem">
-            ${LanguageService.i18n(item.text)}
+          <li class="list-group-item" id="${TextService.htmlEscape(item.id)}" (click)="selectItem">
+            ${TextService.htmlEscape(LanguageService.i18n(item.text))}
           </li>
         ` : '').join('')}
       </ul>

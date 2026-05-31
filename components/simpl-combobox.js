@@ -1,5 +1,6 @@
 import { FormElement } from '../core/form-element.js';
 import { LanguageService } from '../services/language-service.js';
+import { TextService } from '../services/text-service.js';
 
 export class SimplCombobox extends FormElement {
   subscription;
@@ -7,7 +8,7 @@ export class SimplCombobox extends FormElement {
     super();
     this._items = this.getAttribute('items') || [];
     if (typeof this._items === 'string') {
-      this._items = JSON.parse(this._items);
+      try { this._items = JSON.parse(this._items); } catch { this._items = []; }
     }
     this.style = `
       simpl-combobox-list {
@@ -23,7 +24,7 @@ export class SimplCombobox extends FormElement {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
 <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<input (input)="change" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${this.text || ''}" list="${this.name || this.id}-list"></input>
+<input (input)="change" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${TextService.htmlEscape(this.text || '')}" list="${this.name || this.id}-list"></input>
 <div>
   <simpl-combobox-list id="${this.name || this.id}-list"></simpl-combobox-list>
 </div>
