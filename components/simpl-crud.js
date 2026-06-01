@@ -26,15 +26,20 @@ export class SimplCrud extends StaticElement {
   form = [];
   subscription;
 
+  get #dataKey() {
+    return this.name || 'data';
+  }
+
   constructor() {
     super();
     StorageService.loadApp(this.context).then((model) => {
-      this.model = model || {
-        data: []
-      };
+      this.model = model || {};
+      if (!this.model[this.#dataKey]) {
+        this.model[this.#dataKey] = [];
+      }
     });
-    if (!this.model.data) {
-      this.model.data = [];
+    if (!this.model[this.#dataKey]) {
+      this.model[this.#dataKey] = [];
     }
   }
 
@@ -116,12 +121,12 @@ export class SimplCrud extends StaticElement {
     }
     if (await ModalService.open(this.#generateForm(), 'new-record' )) {
       const modalData = SimplModel.model['__simpl-modal'];
-      if (await this.#hasUnique(modalData, this.model.data)) {
+      if (await this.#hasUnique(modalData, this.model[this.#dataKey])) {
         this.doCreate(true);
         return;
       }
-      this.model.data = this.model.data || [];
-      this.model.data.push(this.#addIndex(modalData));
+      this.model[this.#dataKey] = this.model[this.#dataKey] || [];
+      this.model[this.#dataKey].push(this.#addIndex(modalData));
       await this.#saveData();
       ToastService.success(LanguageService.i18n('record-created'));
     }
@@ -137,15 +142,15 @@ export class SimplCrud extends StaticElement {
     setTimeout(async () => {
       if (await ModalService.open(this.#generateForm(), 'edit-record')) {
         const modified = SimplModel.model['__simpl-modal'];
-        let modelData = JSON.parse(JSON.stringify(this.model.data));
+        let modelData = JSON.parse(JSON.stringify(this.model[this.#dataKey]));
         modelData = modelData.filter((dataItem) => JSON.stringify(dataItem) !== JSON.stringify(item));
         if (await this.#hasUnique(modified, modelData)) {
           this.doEdit(item);
           return;
         }
-        this.model.data.forEach((dataItem, index) => {
+        this.model[this.#dataKey].forEach((dataItem, index) => {
           if (JSON.stringify(dataItem) === JSON.stringify(item)) {
-            this.model.data[index] = modified;
+            this.model[this.#dataKey][index] = modified;
             item = {}; // Avoid modifying the item again in case of multiple matches
           }
         });
@@ -174,14 +179,14 @@ export class SimplCrud extends StaticElement {
     if (await ModalService.confirm('delete-record-confirm', 'delete-record')) {
       const result = [];
       let deleted = false;
-      for (const dataItem of this.model.data) {
+      for (const dataItem of this.model[this.#dataKey]) {
         if (JSON.stringify(dataItem) !== JSON.stringify(item) || deleted) {
           result.push(dataItem);
         } else {
           deleted = true;
         }
       }
-      this.model.data = result;
+      this.model[this.#dataKey] = result;
       await this.#saveData();
       ToastService.success(LanguageService.i18n('record-deleted'));
     }
@@ -230,7 +235,8 @@ export class SimplCrud extends StaticElement {
   #addIndex(data) {
     this.form.forEach((field) => {
       if (field.index) {
-        const index = this.model?.data?.length ? Math.max(...this.model.data.map((item) => item[field.name])) + 1 : 0;
+        const arr = this.model?.[this.#dataKey];
+        const index = arr?.length ? Math.max(...arr.map((item) => item[field.name])) + 1 : 0;
         data[field.name] = index;
       }
     });
