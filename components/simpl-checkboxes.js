@@ -1,5 +1,4 @@
 import { FormElement } from '../core/form-element.js';
-import { ModalService } from '../services/modal-service.js';
 
 export class SimplCheckboxes extends FormElement {
   checkboxes = this.getAttribute('values')?.split(',').map((value, index) => ({ value: value.trim(), id: `checkbox_${index}` })) || [];
@@ -33,13 +32,6 @@ export class SimplCheckboxes extends FormElement {
         this.model.lang.push(lang);
       } else {
         this.model.lang = this.model.lang.filter(l => l !== lang);
-      }
-      // TODO: Move this busdsines to the panel logic not in the simpl library
-      if (this.model.lang.length === 0) {
-        ModalService.message('At least one language should be selected', 'Warning');
-        this.model.lang.push(lang);
-        this.refresh();
-        return;
       }
     }
   }

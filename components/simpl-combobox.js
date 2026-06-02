@@ -78,7 +78,6 @@ export class SimplCombobox extends FormElement {
   focus() {
     this.get(`${this.name || this.id}-list`).open = true;
     this.change({ target: { value: this.text }});
-    //this.get(`${this.name || this.id}-list`).refresh();
   }
 
   onReady() {

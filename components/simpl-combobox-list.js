@@ -43,7 +43,6 @@ export class SimplComboboxList extends FormElement {
   }
   
   selectItem(item) {
-    //this.setField(this.name || this.id, item.srcElement.id);
     this.#notify('select', {
       id: item.srcElement.id,
       text: item.srcElement.innerText,
