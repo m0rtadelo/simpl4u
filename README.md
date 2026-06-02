@@ -9,7 +9,7 @@
 
 ## Features
 
-- **Custom Web Components** — 17+ reusable components: tables, forms, buttons, inputs, navbars, modals, color/date pickers, file uploads, progress bars, toggles, combo-boxes, todo/kanban boards, and more.
+- **Custom Web Components** — 17 reusable components: tables, forms, buttons, inputs, navbars, modals, color/date pickers, file uploads, progress bars, toggles, combo-boxes, todo/kanban boards, and more.
 - **Reactive State Management** — Proxy-based global state store (`SimplModel`) with context namespacing, deep reactivity, and subscriber notification.
 - **Localization** — Built-in multi-language support with 5 locales (English, Catalan, Spanish, German, Japanese) and string interpolation.
 - **Theme Management** — Dynamic light/dark theme switching with system preference detection.
@@ -65,6 +65,26 @@ StaticElement (direct)
 
 ---
 
+## Project Structure
+
+```
+simpl4u/
+├── adapters/              # Storage adapters (e.g., StorageAdapter)
+├── assets/
+│   └── i18n/             # Locale files (en, ca, es, de, ja)
+├── components/            # Web Component definitions (17 components)
+├── core/                  # Base classes (Element, StaticElement, ReactiveElement, FormElement)
+├── lib/                   # Vendored dependencies (Bootstrap 5, Notyf, to-excel)
+├── models/                # State management (SimplModel)
+├── services/              # Application services (router, i18n, theme, modal, toast, etc.)
+├── index.js               # Public entrypoint
+├── AGENTS.md              # AI agent instructions
+├── eslint.config.mjs      # ESLint flat config
+└── package.json
+```
+
+---
+
 ## Getting Started
 
 ### Install
@@ -73,7 +93,7 @@ StaticElement (direct)
 npm install
 ```
 
-The project has no runtime dependencies — only ESLint for development.
+The project has no runtime dependencies (Bootstrap, Notyf, and to-excel are vendored in `lib/`). ESLint is the only dev dependency.
 
 ### Lint
 
@@ -90,7 +110,7 @@ Import the library in your HTML or JavaScript entry point:
 <script type="module" src="node_modules/simpl4u/index.js"></script>
 ```
 
-All components are automatically registered as custom elements.
+All components are automatically registered as custom elements. For Electron apps, use the same import in your renderer process.
 
 ---
 
@@ -251,6 +271,41 @@ Filterable list (internal component used by `simpl-combobox`).
 
 ---
 
+### Services usage
+
+```js
+import { RouterService } from './services/router-service.js';
+import { ModalService } from './services/modal-service.js';
+import { ToastService } from './services/toast-service.js';
+import { SpinnerService } from './services/spinner-service.js';
+import { FileService } from './services/file-service.js';
+
+// Navigation
+RouterService.subscribe((view) => console.log('Navigated to:', view));
+RouterService.setView('settings');
+
+// Modal dialogs
+const confirmed = await ModalService.confirm('Delete this item?', 'Confirm');
+const name = await ModalService.prompt('Enter your name:', 'Prompt', 'default');
+
+// Notifications
+ToastService.success('Saved successfully');
+ToastService.error('Something went wrong');
+
+// Loading spinner
+SpinnerService.show();
+await doHeavyWork();
+SpinnerService.hide();
+
+// File download (browser)
+FileService.download('export.xlsx', blob);
+
+// File operations (Electron only)
+const content = await FileService.readFile('/path/to/file.txt');
+```
+
+---
+
 ## State Management
 
 `SimplModel` is a singleton reactive state container. Data is organized by **context** (namespaced keys).
@@ -321,7 +376,7 @@ The service automatically respects the user's `prefers-color-scheme` system sett
 
 ## Storage
 
-Three-tier persistence via `StorageService`:
+Three-tier persistence via `StorageService` (backed by `StorageAdapter` in `adapters/storage-adapter.js`):
 
 | Tier | Backend | Scope |
 |---|---|---|

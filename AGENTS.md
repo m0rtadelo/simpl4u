@@ -32,6 +32,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 - **State**: `SimplModel` singleton, context-namespaced keys, Proxy-based reactivity, 20ms debounced notifications
 - **Event binding**: `(click)="methodName"` attribute syntax in component templates
 - **Vendored deps** in `lib/`: Bootstrap 5 (CSS + JS bundle), Notyf (toast notifications), to-excel (XLS export)
+- **Adapters** in `adapters/`: `StorageAdapter` (pluggable backend for `StorageService`)
 
 ## Services (in `services/`)
 
@@ -47,7 +48,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 | `FileService` | Download in browser, full filesystem in Electron (IPC) |
 | `TextService` | `unaccent()`, `sanitize()`, `localDate()` |
 
-## Storage tiers (`StorageService` + `StorageAdapter`)
+## Storage tiers (`StorageService` + `StorageAdapter` — `adapters/storage-adapter.js`)
 
 | Tier | Backend | Scope |
 |---|---|---|
@@ -66,3 +67,5 @@ WIP / POC. No tests, no CI, no TypeScript.
 
 - `rollup` appears in `package-lock.json` but has no config or script — likely vestigial, do not rely on it
 - No test framework is set up (roadmap item: "Unit tests")
+- Vendored deps in `lib/` are committed to the repo (not in `.gitignore`)
+- License file says MIT; `package.json` says ISC — discrepancy exists, LICENSE file is authoritative
