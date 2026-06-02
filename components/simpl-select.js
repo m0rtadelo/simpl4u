@@ -1,6 +1,10 @@
 import { FormElement } from '../core/form-element.js';
 import { LanguageService } from '../services/language-service.js';
 
+/**
+ * SimplSelect renders a native HTML select dropdown with items.
+ * It auto-selects the first item when no value is set.
+ */
 export class SimplSelect extends FormElement {
   constructor() {
     super();
@@ -10,6 +14,9 @@ export class SimplSelect extends FormElement {
     }
   }
 
+  /**
+   * Called when the element is added to the DOM. Sets default value if none is set.
+   */
   connectedCallback() {
     super.connectedCallback?.();
     if (!this._defaultSet) {
@@ -18,6 +25,11 @@ export class SimplSelect extends FormElement {
     }
   }
 
+  /**
+   * Generates the HTML template for the select dropdown.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
@@ -31,10 +43,17 @@ ${ this.items.map(item => `
     `;
   }
 
+  /**
+   * Sets the selected option value in the model.
+   * @param {Event} value - The change event from the select element
+   */
   change(value) {
     this.setField(this.name || this.id, value.target.value);
   }
 
+  /**
+   * Sets the first item as default when no value is set.
+   */
   setValueWhenAllItemsAreSet() {
     if (this.items.length > 0 && this.model[this.name || this.id] == null) {
       this.setField(this.name || this.id, this.items[0].id);

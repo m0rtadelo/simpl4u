@@ -2,6 +2,10 @@ import { FormElement } from '../core/form-element.js';
 import { LanguageService } from '../services/language-service.js';
 import { TextService } from '../services/text-service.js';
 
+/**
+ * SimplCombobox is a form input with autocomplete dropdown.
+ * It provides a text input that filters a list of items and auto-selects on match.
+ */
 export class SimplCombobox extends FormElement {
   subscription;
   constructor() {
@@ -23,6 +27,11 @@ export class SimplCombobox extends FormElement {
     if (match) this.text = match.text;
   }
 
+  /**
+   * Generates the HTML template for the combobox input and dropdown list.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
@@ -38,12 +47,19 @@ export class SimplCombobox extends FormElement {
         `;
   }
 
+  /**
+   * Handles input changes, filtering the dropdown list by the typed text.
+   * @param {Event} value - The input event
+   */
   change(value) {
     const text = value?.target?.value || '';
     this.get(`${this.name || this.id}-list`).filterText = text;
     this.get(`${this.name || this.id}-list`).refresh();
   }
 
+  /**
+   * Clears the selected value and closes the dropdown.
+   */
   clear() {
     this.setField(this.name || this.id, '');
     this.text = '';
@@ -53,6 +69,10 @@ export class SimplCombobox extends FormElement {
     this.refresh();
   }
 
+  /**
+   * Handles keydown events. On Enter, validates and auto-selects if one match.
+   * @param {KeyboardEvent} event - The keyboard event
+   */
   onKeyDown(event) {
     if (event.key === 'Enter') {
       const list = this.get(`${this.name || this.id}-list`);
@@ -64,6 +84,9 @@ export class SimplCombobox extends FormElement {
     }
   }
 
+  /**
+   * Handles blur by validating and auto-selecting the matched item.
+   */
   blur() {
     const list = this.get(`${this.name || this.id}-list`);
     list.validate();
@@ -75,11 +98,17 @@ export class SimplCombobox extends FormElement {
     }, 100);
   }
 
+  /**
+   * Handles focus by opening the dropdown and showing matching items.
+   */
   focus() {
     this.get(`${this.name || this.id}-list`).open = true;
     this.change({ target: { value: this.text }});
   }
 
+  /**
+   * Sets up the dropdown list with items and subscribes to selection events.
+   */
   onReady() {
     const list = this.get(`${this.name || this.id}-list`);
     if (list) {

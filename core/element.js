@@ -2,6 +2,10 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
+/**
+ * Element is the base class for all simpl4u web components.
+ * It provides model binding, i18n, routing, storage, and rendering utilities.
+ */
 export class Element extends HTMLElement {
   static loaded = false;
   context = this.getAttribute('context') || 'global';
@@ -195,10 +199,17 @@ export class Element extends HTMLElement {
     SimplModel.set(value, id, this.context);
   }
 
+  /**
+   * Returns the name or id of the element.
+   * @returns {string} The element identifier
+   */
   getName() {
     return this.name || this.id;
   }
 
+  /**
+   * Loads the view state from session storage.
+   */
   async loadViewState() {
     clearTimeout(this.loadViewStateTimer);
     this.loadViewStateTimer = setTimeout(async () => {
@@ -210,6 +221,9 @@ export class Element extends HTMLElement {
     }, 10);
   }
 
+  /**
+   * Saves the current view state to session storage.
+   */
   async saveViewState() {
     StorageService.saveUser(this.context, this.model);
   }

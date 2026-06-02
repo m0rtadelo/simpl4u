@@ -1,6 +1,9 @@
 import { LanguageService } from './language-service.js';
 import { TextService } from './text-service.js';
 
+/**
+ * ModalService provides methods for showing Bootstrap modals: message, confirm, prompt, and open custom.
+ */
 export class ModalService {
   /**
    * Static ID for the default Bootstrap modal.

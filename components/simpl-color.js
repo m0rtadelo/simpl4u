@@ -3,7 +3,15 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { TextService } from '../services/text-service.js';
 
+/**
+ * SimplColor renders a color picker input with optional label.
+ */
 export class SimplColor extends FormElement {
+  /**
+   * Generates the HTML template for the color picker.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   template(state) {
     return `
     <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
@@ -14,10 +22,17 @@ export class SimplColor extends FormElement {
     `;
   }
 
+  /**
+   * Sets the color value in the model.
+   * @param {Event} value - The input event
+   */
   change(value) {
     SimplModel.set(value.target.value, this.name || this.id, this.context);
   }
 
+  /**
+   * Focuses the color input element.
+   */
   focus() {
     document.querySelector('input#' + this.name).focus();
   }

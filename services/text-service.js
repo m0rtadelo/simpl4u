@@ -1,3 +1,6 @@
+/**
+ * TextService provides utility methods for text manipulation including unaccent, sanitize, HTML escape, and date formatting.
+ */
 export class TextService {
 
   /**

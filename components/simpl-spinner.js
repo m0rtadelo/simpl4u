@@ -1,5 +1,8 @@
 import { StaticElement } from '../core/static-element.js';
 
+/**
+ * SimplSpinner renders a full-page loading overlay with a spinner.
+ */
 export class SimplSpinner extends StaticElement {
   constructor() {
     super();
@@ -18,6 +21,11 @@ export class SimplSpinner extends StaticElement {
     }
     `;
   }
+
+  /**
+   * Generates the HTML template for the spinner overlay.
+   * @returns {string} The HTML template string
+   */
   template() {
     return `
         <div id="simpl4u_spinner_backdrop">

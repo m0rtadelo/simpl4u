@@ -17,7 +17,6 @@ export class RouterService {
   static view = '';
 
   static {
-    // Listen for hash changes in the browser and notify subscribers.
     window.addEventListener('hashchange', () => {
       const newHash = (location.hash || '').slice(1);
       if (newHash) {
@@ -27,6 +26,10 @@ export class RouterService {
     });
   }
 
+  /**
+   * Navigates to a view by setting the URL hash.
+   * @param {string} view - The view identifier to navigate to
+   */
   static setView(view) {
     if (RouterService.view === view) {
       return;

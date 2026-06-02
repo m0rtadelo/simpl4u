@@ -3,7 +3,15 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { TextService } from '../services/text-service.js';
 
+/**
+ * SimplInput renders a text input with label, validation, and i18n support.
+ */
 export class SimplInput extends FormElement {
+  /**
+   * Generates the HTML template for the text input.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   template(state) {
     this.reactive = this.disabled;
     return `
@@ -14,10 +22,17 @@ export class SimplInput extends FormElement {
     `;
   }
 
+  /**
+   * Sets the input value in the model.
+   * @param {Event} value - The input event
+   */
   change(value) {
     SimplModel.set(value.target.value, (this.name || this.id), this.context);
   }
 
+  /**
+   * Focuses the input element.
+   */
   focus() {
     const element = document.querySelector('input#' + (this.name || this.id));
     element?.focus();

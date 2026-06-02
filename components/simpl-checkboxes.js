@@ -1,12 +1,26 @@
 import { FormElement } from '../core/form-element.js';
 
+/**
+ * SimplCheckboxes renders a group of toggle buttons as checkboxes.
+ * It allows selecting multiple values from a list.
+ */
 export class SimplCheckboxes extends FormElement {
   checkboxes = this.getAttribute('values')?.split(',').map((value, index) => ({ value: value.trim(), id: `checkbox_${index}` })) || [];
 
+  /**
+   * Generates the HTML template delegating to generateCheckboxes.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   template(state) {
     return this.generateCheckboxes(state);
   }
 
+  /**
+   * Renders the checkbox toggle button group.
+   * @param {object} state - The current model state
+   * @returns {string} The HTML template string
+   */
   generateCheckboxes(state) {
     let checkboxHtml = '';
     const values = state[this.name || this.id] || [];
@@ -24,6 +38,10 @@ export class SimplCheckboxes extends FormElement {
     `;
   }
 
+  /**
+   * Toggles a checkbox value in the model array.
+   * @param {Event} event - The change event from the checkbox input
+   */
   toggleCheckbox(event) {
     const lang = event?.target?.name;
     const checked = event?.target?.checked;

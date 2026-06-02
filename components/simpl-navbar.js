@@ -9,6 +9,9 @@ import { ThemeService } from '../services/theme-service.js';
  * @property {string} name - The name of the field (translated).
  * @property {boolean} emmit - Indicates if the item should emit an event when clicked (instead of navigating).
  */
+/**
+ * SimplNavBar renders a responsive navigation bar with router links, language switcher, and theme toggle.
+ */
 export class SimplNavBar extends ReactiveElement {
   #subscribers = new Set();
   _hideLang = false;
@@ -104,14 +107,25 @@ export class SimplNavBar extends ReactiveElement {
     }
   }
   
+  /**
+   * Toggles between light and dark theme.
+   */
   switchTheme() {
     ThemeService.switchTheme();
   }
 
+  /**
+   * Changes the application language.
+   * @param {Event} event - The click event on the language item
+   */
   changeLang(event) {
     LanguageService.lang = event.target.id;
   }
 
+  /**
+   * Renders the navigation items as links.
+   * @returns {string} The HTML for navbar items
+   */
   renderItems() {
     return this.items?.map(item => {
       return item.emmit 
@@ -120,6 +134,10 @@ export class SimplNavBar extends ReactiveElement {
     }).join('');
   }
 
+  /**
+   * Renders the language switcher dropdown items.
+   * @returns {string} The HTML for language items
+   */
   renderLanguages() {
     return this.languages?.map(lang => {
       return `<li>
@@ -127,6 +145,11 @@ export class SimplNavBar extends ReactiveElement {
               </li>`;
     }).join('');
   }
+
+  /**
+   * Emits a click event to subscribers.
+   * @param {Event} event - The click event
+   */
   emmit(event) {
     this.#notify('click', event.target.id);
   }
