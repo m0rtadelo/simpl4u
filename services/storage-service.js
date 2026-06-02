@@ -139,6 +139,19 @@ export class StorageService {
   }  
 
   /**
+   * Method to clear all data stored under the current key from both
+   * localStorage and sessionStorage.
+   * @returns {Promise<boolean>} true on success
+   */
+  static async clear() {
+    return new Promise((resolve) => {
+      this.#adapter.clear().then((result) => {
+        resolve(result);
+      });
+    });
+  }
+
+  /**
    * Method to save user-specific data.
    * @param {string} key of the data to be saved
    * @param {any} value to save

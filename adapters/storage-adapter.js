@@ -100,6 +100,17 @@ export class StorageAdapter {
   }
   
   /**
+   * Method to clear all data stored under the current key from both
+   * localStorage and sessionStorage.
+   * @returns {Promise<boolean>} true on success
+   */
+  static async clear() {
+    localStorage.removeItem(this.#key);
+    sessionStorage.removeItem(this.#key);
+    return Promise.resolve(true);
+  }
+
+  /**
    * Method to save the data in the user session storage. The data is not persistent across sessions.
    * @param {string} key of the data to be saved
    * @param {JSON} value of the data to be saved
