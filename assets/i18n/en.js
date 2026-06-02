@@ -24,4 +24,5 @@ export const words = {
   'record-deleted': 'Item deleted',
   'record-created': 'Item created',
   'record-updated': 'Item updated',
+  'clear': 'Clear',
 };

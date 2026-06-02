@@ -24,5 +24,6 @@ export const words = {
   'record-deleted': 'Elemento eliminado',
   'record-created': 'Elemento creado',
   'record-updated': 'Elemento actualizado',
+  'clear': 'Limpiar',
 };
   

@@ -24,4 +24,5 @@ export const words = {
   'record-deleted': 'Eintrag gelöscht',
   'record-created': 'Eintrag erstellt',
   'record-updated': 'Eintrag aktualisiert',
+  'clear': 'Zurücksetzen',
 };

@@ -24,4 +24,5 @@ export const words = {
   'record-deleted': 'レコードが削除されました',
   'record-created': 'レコードが作成されました',
   'record-updated': 'レコードが更新されました',
+  'clear': 'クリア',
 };

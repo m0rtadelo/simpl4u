@@ -16,16 +16,22 @@ export class SimplCombobox extends FormElement {
         overflow-y: auto;
         position: absolute;
         z-index: 1000;
+        width: 100%;
       }`;
     this.text = this.model[this.name || this.id];
+    const match = this._items.find(item => item.id === this.text);
+    if (match) this.text = match.text;
   }
 
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
 <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<input (input)="change" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${TextService.htmlEscape(this.text || '')}" list="${this.name || this.id}-list"></input>
-<div>
+<div style="position: relative">
+  <input (input)="change" (keydown)="onKeyDown" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${TextService.htmlEscape(this.text || '')}" list="${this.name || this.id}-list" style="cursor: pointer"></input>
+  <button (click)="clear" type="button" class="btn p-0" title="${LanguageService.i18n('clear')}" style="position: absolute; right: 40px; top: 25%; border: none; background: none; z-index: 5; line-height: 1; ${this.text ? '' : 'display: none'}">&times;</button>
+</div>
+<div style="position: relative">
   <simpl-combobox-list id="${this.name || this.id}-list"></simpl-combobox-list>
 </div>
 </div>
@@ -38,11 +44,34 @@ export class SimplCombobox extends FormElement {
     this.get(`${this.name || this.id}-list`).refresh();
   }
 
+  clear() {
+    this.setField(this.name || this.id, '');
+    this.text = '';
+    this.get(`${this.name || this.id}-list`).open = false;
+    this.get(`${this.name || this.id}-list`).filterText = '';
+    this.get(`${this.name || this.id}-list`).refresh();
+    this.refresh();
+  }
+
+  onKeyDown(event) {
+    if (event.key === 'Enter') {
+      const list = this.get(`${this.name || this.id}-list`);
+      list.validate();
+      list.open = false;
+      list.filterText = this.text || '';
+      list.refresh();
+      this.refresh();
+    }
+  }
+
   blur() {
-    this.get(`${this.name || this.id}-list`).validate();
+    const list = this.get(`${this.name || this.id}-list`);
+    list.validate();
     setTimeout(() => {
-      this.get(`${this.name || this.id}-list`).open = false;
-      this.get(`${this.name || this.id}-list`).refresh();
+      list.open = false;
+      list.filterText = this.text || '';
+      list.refresh();
+      this.refresh();
     }, 100);
   }
 
