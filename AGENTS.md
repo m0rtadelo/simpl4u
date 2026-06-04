@@ -42,7 +42,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 | `LanguageService` | i18n, 5 locales in `assets/i18n/` |
 | `ThemeService` | Light/dark, `data-bs-theme`, system preference detection |
 | `ModalService` | Bootstrap modal dialogs (message/confirm/prompt) |
-| `ToastService` | Notyf notifications (success/error/warning/info) |
+| `ToastService` | Notyf notifications (success/error/warning/info), configurable via `duration`/`dismissible`/`position` |
 | `SpinnerService` | Full-page loading overlay |
 | `StorageService` | 3-tier persistence (localStorage / sessionStorage / Electron IPC) |
 | `FileService` | Download in browser, full filesystem in Electron (IPC) |

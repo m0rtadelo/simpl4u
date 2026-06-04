@@ -263,7 +263,7 @@ Filterable list (internal component used by `simpl-combobox`).
 | `LanguageService` | i18n with 5 built-in locales. `lang` getter/setter, `i18n(key, params)` for translation with `{{param}}` interpolation, `set(languages)` to merge custom translations. |
 | `ThemeService` | Light/dark theme management. `theme` getter/setter, `switchTheme()`, persists choice, detects system preference. |
 | `ModalService` | Bootstrap modal dialogs. `message(text, title)`, `confirm(text, title)` → Promise\<boolean\>, `prompt(text, title, value)` → Promise\<string\>, `open(body, title, hideCancel)`. |
-| `ToastService` | Notyf-powered notifications. `success(msg)`, `error(msg)`, `warning(msg)`, `info(msg)`. |
+| `ToastService` | Notyf-powered notifications. `success(msg)`, `error(msg)`, `warning(msg)`, `info(msg)`. Configurable via `duration` (ms), `dismissible`, and `position` getters/setters. |
 | `SpinnerService` | Spinner overlay control. `show()`, `hide()` with debounce to prevent flickering. |
 | `StorageService` | High-level storage API wrapping `StorageAdapter`. `saveApp(key)`, `loadApp(key)`, `saveUser(key)`, `loadUser(key)`, `saveSystem(key)`, `loadSystem(key)`, `saveAppModel()`, `loadAppModel()`. |
 | `FileService` | Browser/Electron file operations. `download(filename, data)` for browser; in Electron: `readFile`, `writeFileSync`, `mkdir`, `selectDirectory`, `ls`, `cp`, `rm`, `rmdir` via IPC. |
@@ -291,6 +291,11 @@ const name = await ModalService.prompt('Enter your name:', 'Prompt', 'default');
 // Notifications
 ToastService.success('Saved successfully');
 ToastService.error('Something went wrong');
+
+// Configuration
+ToastService.duration = 3000;        // 3 seconds
+ToastService.dismissible = false;    // Must wait out duration
+ToastService.position = { x: 'left', y: 'bottom' };
 
 // Loading spinner
 SpinnerService.show();
