@@ -13,6 +13,7 @@ export class LanguageService {
   static #lang = 'en';
   static #subscribers = new Set();
   static #languages = {};
+  static #ignoreSavedLang = false;
 
   static {
     LanguageService.load();
@@ -21,7 +22,9 @@ export class LanguageService {
 
   static load() {
     StorageService.loadApp('_lang').then((lang) => {
-      LanguageService.lang = lang || 'en';
+      if (!LanguageService.#ignoreSavedLang) {
+        LanguageService.lang = lang || LanguageService.lang;
+      }
     });
   }
 
@@ -76,12 +79,19 @@ export class LanguageService {
    * Merges additional translations into the existing language definitions.
    * 
    * @param {Object} languages - An object containing language definitions to merge.
+   * @param {string} [defaultLang=''] - An id for the default language to be used (user language is going to be ignored)
    */
-  static set(languages) {
+  static set(languages, defaultLang = '') {
     Object.keys(languages).forEach((key) => {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
       LanguageService.#languages[key] = { ...LanguageService.#languages[key], ...languages[key] };
     });
+    if (defaultLang) {
+      LanguageService.#ignoreSavedLang = true;
+      LanguageService.#lang = defaultLang;
+      StorageService.saveApp('_lang', defaultLang);
+      LanguageService.#notify();
+    }
   }
 
   /**
