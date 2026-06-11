@@ -37,6 +37,19 @@ export class Element extends HTMLElement {
             LanguageService.lang = result || 'en';
         }).catch(() => {});
       }
+      Promise.resolve().then(async () => {
+        const raw = await StorageService.loadAppModel();
+        if (raw) {
+          try {
+            const data = JSON.parse(raw);
+            for (const [context, value] of Object.entries(data)) {
+              SimplModel.model[context] = value;
+            }
+          } catch (e) {
+            console.error('Failed to load model from storage', e);
+          }
+        }
+      });
     }
   }
 
