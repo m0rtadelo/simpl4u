@@ -73,6 +73,26 @@ ensure_import() {
   printf '%s\n' "$import_line" > "$file_path"
 }
 
+resolve_base_import() {
+  local cwd="$1"
+  local base_file="$2"
+  local parent_dir
+
+  parent_dir=$(dirname "$cwd")
+
+  if [ -f "$cwd/core/$base_file" ]; then
+    printf '%s' "../core/$base_file"
+    return
+  fi
+
+  if [ -f "$parent_dir/simpl4u/core/$base_file" ]; then
+    printf '%s' "../../simpl4u/core/$base_file"
+    return
+  fi
+
+  printf '%s' "../core/$base_file"
+}
+
 generate_component() {
   local component_class="$1"
   local component_name="$2"
@@ -83,11 +103,11 @@ generate_component() {
 
   case "$(to_lower "$component_class")" in
     static)
-      base_import='../core/static-element.js'
+      base_import=$(resolve_base_import "$cwd" 'static-element.js')
       base_class='StaticElement'
       ;;
     reactive)
-      base_import='../core/reactive-element.js'
+      base_import=$(resolve_base_import "$cwd" 'reactive-element.js')
       base_class='ReactiveElement'
       ;;
     *)
@@ -105,8 +125,8 @@ generate_component() {
   clean_name="${clean_name#Simpl}"
   local kebab_name
   kebab_name=$(to_kebab_case "$clean_name")
-  local file_name="simpl-${kebab_name}.js"
-  local tag_name="simpl-${kebab_name}"
+  local file_name="${kebab_name}.js"
+  local tag_name="${kebab_name}"
   local components_dir="$cwd/components"
   local file_path="$components_dir/$file_name"
 
@@ -126,10 +146,10 @@ import { __BASE_CLASS__ } from '__BASE_IMPORT__';
  */
 export class __COMPONENT_NAME__ extends __BASE_CLASS__ {
   /**
-   * @param {object} _state - Current model state in this context.
+   * @param {object} state - Current model state in this context.
    * @returns {string} The HTML template string.
    */
-  template(_state) {
+  template(state) {
     return `
     <div>__COMPONENT_NAME__ works</div>
     `;
