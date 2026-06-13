@@ -85,7 +85,7 @@ export class StorageAdapter {
    * @description This method saves the data in the app local storage. The data is stored in a json string.
    */
   static async saveAppModel(model) {
-    localStorage.setItem(this.#key, model);
+    localStorage.setItem(this.#key, JSON.stringify(model));
     return Promise.resolve(true);
   }
 
@@ -95,7 +95,7 @@ export class StorageAdapter {
    * @description This method saves the data in the app session storage. The data is stored in a json string.
    */
   static async saveUserModel(model) {
-    sessionStorage.setItem(this.#key, model);
+    sessionStorage.setItem(this.#key, JSON.stringify(model));
     return Promise.resolve(true);
   }
   
