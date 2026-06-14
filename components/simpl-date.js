@@ -15,7 +15,7 @@ export class SimplDate extends FormElement {
     return `
 <div ${this.hidden ? 'style="display:none"' : ''}>
 <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<input type="date" (change)="change" ${super.isRequired()} name="${this.name || this.id}" ${this.disabled ? 'disabled' : ''} class="form-control" value="${TextService.htmlEscape(state[this.name || this.id] || '')}" aria-label="${this.label || ''}">
+<input type="date" (change)="change" ${super.isRequired()} name="${this.name || this.id}" ${this.disabled ? 'disabled' : ''} class="form-control" value="${TextService.htmlEscape(state[this.name || this.id] || '')}" aria-label="${this.label ? LanguageService.i18n(this.label) : ''}">
 </div>        
 `;
   }

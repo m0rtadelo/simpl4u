@@ -2,12 +2,14 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
+import morphdom from '../lib/morphdom.js';
 /**
  * Element is the base class for all simpl4u web components.
  * It provides model binding, i18n, routing, storage, and rendering utilities.
  */
 export class Element extends HTMLElement {
   static loaded = false;
+  static useMorhdom = false;
   context = this.getAttribute('context') || 'global';
   name = this.getAttribute('name');
   id = this.getAttribute('id');
@@ -70,6 +72,7 @@ export class Element extends HTMLElement {
     this.render();
     this.onReady();
     this.addListenersFromTemplate();
+    this.setValueWhenAllItemsAreSet();
   }
 
   /**
@@ -131,11 +134,28 @@ export class Element extends HTMLElement {
   onReady() { }
 
   /**
+   * Callback to set default value for some fields
+   */
+  setValueWhenAllItemsAreSet() { }
+
+  /**
    * Method to force the render template.
    * NOTE: Listeners will be destroyed and should be added again
    */
   render() {
-    this.innerHTML = this.getStyle().concat(this.template(this.model));
+    if (Element.useMorhdom) {
+      const content = this.getStyle().concat(this.template(this.model));
+      const toNode = `<${this.tagName.toLowerCase()}>${content}</${this.tagName.toLowerCase()}>`;
+      morphdom(this, toNode, {
+        // Keep each custom element responsible for rendering its own internal DOM.
+        onBeforeElChildrenUpdated: (fromEl) => {
+          if (fromEl === this) return true;
+          return !fromEl.tagName?.includes('-');
+        },
+      });
+    } else {
+      this.innerHTML = this.getStyle().concat(this.template(this.model));
+    }
 
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (() => {

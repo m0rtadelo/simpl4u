@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+print_usage() {
+  echo 'Simpl4u CLI'
+  echo 'Uso: ./s4u <tipo> <clase> <nombre>'
+  echo 'Ejemplo: ./s4u component reactive MyComponent'
+  echo 'Tipos disponibles: component'
+  echo 'Clases disponibles para component: static | reactive'
+}
+
+to_lower() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+to_kebab_case() {
+  local input="$1"
+  local result=''
+  local prev=''
+  local char=''
+  local lower=''
+  local i=0
+  local len=${#input}
+
+  while [ "$i" -lt "$len" ]; do
+    char="${input:$i:1}"
+
+    if [[ "$char" =~ [[:space:]_] ]]; then
+      if [ -n "$result" ] && [ "${result: -1}" != '-' ]; then
+        result+="-"
+      fi
+      i=$((i + 1))
+      prev="$char"
+      continue
+    fi
+
+    lower=$(printf '%s' "$char" | tr '[:upper:]' '[:lower:]')
+
+    if [[ "$char" =~ [[:upper:]] ]] && [ "$i" -gt 0 ] && [[ "$prev" =~ [[:lower:][:digit:]] ]]; then
+      result+="-"
+    fi
+
+    result+="$lower"
+    prev="$char"
+    i=$((i + 1))
+  done
+
+  result=$(printf '%s' "$result" | sed -E 's/-+/-/g; s/^-+//; s/-+$//')
+  printf '%s' "$result"
+}
+
+ensure_import() {
+  local file_path="$1"
+  local import_line="$2"
+
+  if [ -f "$file_path" ]; then
+    if grep -Fqx "$import_line" "$file_path"; then
+      return
+    fi
+
+    if [ -s "$file_path" ]; then
+      # Add a line break only when the file does not end with one.
+      if [ -n "$(tail -c 1 "$file_path" 2>/dev/null || true)" ]; then
+        printf '\n' >> "$file_path"
+      fi
+    fi
+
+    printf '%s\n' "$import_line" >> "$file_path"
+    return
+  fi
+
+  printf '%s\n' "$import_line" > "$file_path"
+}
+
+generate_component() {
+  local component_class="$1"
+  local component_name="$2"
+  local cwd="$3"
+
+  local base_import=''
+  local base_class=''
+
+  case "$(to_lower "$component_class")" in
+    static)
+      base_import='../core/static-element.js'
+      base_class='StaticElement'
+      ;;
+    reactive)
+      base_import='../core/reactive-element.js'
+      base_class='ReactiveElement'
+      ;;
+    *)
+      echo "Clase no valida. Usa 'static' o 'reactive'." >&2
+      exit 1
+      ;;
+  esac
+
+  if [[ ! "$component_name" =~ ^[A-Za-z][A-Za-z0-9_]*$ ]]; then
+    echo 'Nombre no valido. Debe empezar por letra y solo contener letras, numeros o _.' >&2
+    exit 1
+  fi
+
+  local clean_name="$component_name"
+  clean_name="${clean_name#Simpl}"
+  local kebab_name
+  kebab_name=$(to_kebab_case "$clean_name")
+  local file_name="simpl-${kebab_name}.js"
+  local tag_name="simpl-${kebab_name}"
+  local components_dir="$cwd/components"
+  local file_path="$components_dir/$file_name"
+
+  mkdir -p "$components_dir"
+
+  if [ -e "$file_path" ]; then
+    echo "El archivo ya existe: $file_path" >&2
+    exit 1
+  fi
+
+  local source
+  source=$(cat <<'EOF'
+import { __BASE_CLASS__ } from '__BASE_IMPORT__';
+
+/**
+ * __COMPONENT_NAME__ component.
+ */
+export class __COMPONENT_NAME__ extends __BASE_CLASS__ {
+  /**
+   * @param {object} _state - Current model state in this context.
+   * @returns {string} The HTML template string.
+   */
+  template(_state) {
+    return `
+    <div>__COMPONENT_NAME__ works</div>
+    `;
+  }
+}
+customElements.define('__TAG_NAME__', __COMPONENT_NAME__);
+EOF
+)
+  source=${source//__BASE_CLASS__/$base_class}
+  source=${source//__BASE_IMPORT__/$base_import}
+  source=${source//__COMPONENT_NAME__/$component_name}
+  source=${source//__TAG_NAME__/$tag_name}
+  printf '%s\n' "$source" > "$file_path"
+
+  local components_index="$components_dir/index.js"
+  local root_index="$cwd/index.js"
+  local components_import="import './$file_name';"
+
+  if [ -f "$components_index" ]; then
+    ensure_import "$components_index" "$components_import"
+  else
+    ensure_import "$root_index" "import './components/$file_name';"
+  fi
+
+  echo "Componente creado: $file_path"
+}
+
+main() {
+  local type="${1:-}"
+  local component_class="${2:-}"
+  local component_name="${3:-}"
+
+  if [ -z "$type" ] || [ -z "$component_class" ] || [ -z "$component_name" ]; then
+    print_usage
+    exit 1
+  fi
+
+  if [ "$(to_lower "$type")" != 'component' ]; then
+    echo "Tipo no soportado por ahora. Usa: 'component'." >&2
+    exit 1
+  fi
+
+  generate_component "$component_class" "$component_name" "$(pwd)"
+}
+
+main "$@"
