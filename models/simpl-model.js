@@ -69,12 +69,15 @@ export class SimplModel {
   }
 
   static #notify(property) {
-    const actualModel = JSON.stringify(SimplModel.#model);
-    if (actualModel === SimplModel.#lastNotifiedModel) return;
-    SimplModel.#lastNotifiedModel = actualModel;
-    for (const callback of SimplModel.#subscribers) {
-      callback(SimplModel.#model, property);
-    }
+    clearTimeout(SimplModel.notifyTimeout);
+    SimplModel.notifyTimeout = setTimeout(() => {
+      const actualModel = JSON.stringify(SimplModel.#model);
+      if (actualModel === SimplModel.#lastNotifiedModel) return;
+      SimplModel.#lastNotifiedModel = actualModel;
+      for (const callback of SimplModel.#subscribers) {
+        callback(SimplModel.#model, property);
+      }
+    }, 50);
   }
 
   /**
@@ -103,10 +106,7 @@ export class SimplModel {
     const handler = {
       set: (target, property, value) => {
         target[property] = SimplModel.#rawCache.get(value) ?? value;
-        clearTimeout(SimplModel.notifyTimeout);
-        SimplModel.notifyTimeout = setTimeout(() => {
-          SimplModel.#notify(property);
-        }, 20);
+        SimplModel.#notify(property);
         return true;
       },
       get: (target, property) => {
