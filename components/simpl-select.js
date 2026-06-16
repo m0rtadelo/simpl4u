@@ -8,9 +8,9 @@ import { LanguageService } from '../services/language-service.js';
 export class SimplSelect extends FormElement {
   constructor() {
     super();
-    this._items = this.getAttribute('items') || [];
-    if (typeof this._items === 'string') {
-      try { this._items = JSON.parse(this._items); } catch { this._items = []; }
+    this.items = this.getAttribute('items') || [];
+    if (typeof this.items === 'string') {
+      try { this.items = JSON.parse(this.items); } catch { this.items = []; }
     }
   }
 

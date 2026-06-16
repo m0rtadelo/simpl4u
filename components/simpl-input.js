@@ -13,11 +13,11 @@ export class SimplInput extends FormElement {
    * @returns {string} The HTML template string
    */
   template(state) {
-    this.reactive = this.disabled;
+    this.isReactive = this.disabled;
     return `
     <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
-      <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${super.isRequired() ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-      <input autofocus="true" (input)="change" placeholder="${TextService.htmlEscape(this.placeholder || '')}" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control col-12" type="${this.type || 'text'}" value="${TextService.htmlEscape(state[this.name || this.id] || '')}"></input>
+      <label for="${this.getName()}" class="form-label col-12">${LanguageService.i18n(this.label)}${super.isRequired() ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
+      <input autofocus="true" (input)="change" placeholder="${TextService.htmlEscape(this.placeholder || '')}" id="${this.getName()}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control col-12" type="${this.type || 'text'}" value="${TextService.htmlEscape(state[this.getName()] || '')}"></input>
     </div>
     `;
   }
@@ -27,14 +27,14 @@ export class SimplInput extends FormElement {
    * @param {Event} value - The input event
    */
   change(value) {
-    SimplModel.set(value.target.value, (this.name || this.id), this.context);
+    SimplModel.set(value.target.value, (this.getName()), this.context);
   }
 
   /**
    * Focuses the input element.
    */
   focus() {
-    const element = document.querySelector('input#' + (this.name || this.id));
+    const element = this.get(this.getName()); //document.querySelector('input#' + (this.getName()));
     element?.focus();
   }
 }

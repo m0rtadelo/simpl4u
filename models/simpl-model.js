@@ -27,6 +27,10 @@ export class SimplModel {
     return this.#model;
   }
 
+  static get clone() {
+    return JSON.parse(JSON.stringify(this.#model));
+  }
+
   /**
    * Get a value from the model.
    * @param {string} [id] property key to retrieve
@@ -69,15 +73,15 @@ export class SimplModel {
   }
 
   static #notify(property) {
-    clearTimeout(SimplModel.notifyTimeout);
     SimplModel.notifyTimeout = setTimeout(() => {
       const actualModel = JSON.stringify(SimplModel.#model);
       if (actualModel === SimplModel.#lastNotifiedModel) return;
       SimplModel.#lastNotifiedModel = actualModel;
+      clearTimeout(SimplModel.notifyTimeout);
       for (const callback of SimplModel.#subscribers) {
         callback(SimplModel.#model, property);
       }
-    }, 50);
+    }, 10);
   }
 
   /**

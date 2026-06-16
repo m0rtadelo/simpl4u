@@ -8,9 +8,9 @@ export class FormElement extends StaticElement {
   required = this.hasAttribute('required');
   hidden = this.hasAttribute('hidden');
   disabled = this.hasAttribute('disabled');
-  reactive = this.hasAttribute('reactive');
   type = this.getAttribute('type');
   placeholder = this.getAttribute('placeholder');
+  #_items = [];
 
   /**
    * Returns the 'required' HTML attribute string when the field is required and not disabled or hidden.
@@ -20,12 +20,16 @@ export class FormElement extends StaticElement {
     return this.required && !(this.disabled || this.hidden) ? 'required' : '';
   }
 
-  /**
-   * Called when the model state changes. Refreshes if reactive is enabled.
-   */
+  get items() {
+    return this.#_items;
+  }
+
+  set items(value) {
+    this.#_items = value;
+    this.refresh();
+  }
+
   onUpdateState() {
-    if (this.reactive) {
-      this.refresh();
-    }
+    this.refresh();
   }
 }

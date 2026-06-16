@@ -5,7 +5,7 @@ import { TextService } from '../services/text-service.js';
  * SimpleProgress renders a Bootstrap progress bar bound to a model value.
  */
 export class SimpleProgress extends FormElement {
-  reactive = true;
+  isReactive = true;
   /**
    * Generates the HTML template for the progress bar.
    * @param {object} state - The current model state

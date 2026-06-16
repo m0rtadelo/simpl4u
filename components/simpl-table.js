@@ -73,7 +73,6 @@ export class SimplTable extends ReactiveElement {
    * Called when the component is ready. Sets up event listeners for actions and headers.
    */
   onReady() {
-    // this.setEventListener('create', 'click', () => this.create());
     (this.filteredOrderedItems || []).forEach((item, index) => {
       this.setEventListener('edit_' + index, 'click', () => this.edit(item));
       this.setEventListener('detail_' + index, 'click', () => this.detail(item));

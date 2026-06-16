@@ -2,36 +2,28 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
-import morphdom from '../lib/morphdom.js';
-/**
- * Element is the base class for all simpl4u web components.
- * It provides model binding, i18n, routing, storage, and rendering utilities.
- */
 export class Element extends HTMLElement {
+  #refreshTimer = undefined;
+  #lastHtml = undefined;
+  #timerRef = undefined;
+  #modelSubscription = undefined;
+  #redraws = 0;
+  #domListeners = [];
   static loaded = false;
-  static useMorhdom = false;
+  isReactive = true;
   context = this.getAttribute('context') || 'global';
   name = this.getAttribute('name');
   id = this.getAttribute('id');
   label = this.getAttribute('label') || this.name || '';
-  required = this.hasAttribute('required');
-  hidden = this.hasAttribute('hidden');
-  disabled = this.hasAttribute('disabled');
-  timerRef = undefined;
   loadViewStateTimer = undefined;
   style = '';
-  _items;
 
   constructor() {
     super();
     if (!Element.loaded) {
       Element.loaded = true;
-      RouterService.subscribe(() => {
-        this.refresh();
-      });
-      LanguageService.subscribe(() => {
-        this.refresh();
-      });
+      RouterService.subscribe(() => this.refresh());
+      LanguageService.subscribe(() => this.refresh(true));
       if (typeof window.api !== 'undefined') {
         window.api.getLocale().then(async (result) => {
           const userLang = await StorageService.loadApp('_lang');
@@ -39,124 +31,77 @@ export class Element extends HTMLElement {
             LanguageService.lang = result || 'en';
         }).catch(() => {});
       }
-      Promise.resolve().then(async () => {
-        const raw = await StorageService.loadAppModel();
-        if (raw) {
-          try {
-            const data = JSON.parse(raw);
-            for (const [context, value] of Object.entries(data)) {
-              SimplModel.model[context] = value;
-            }
-          } catch (e) {
-            console.error('Failed to load model from storage', e);
-          }
-        }
-      });
+      this.#loadModelFromStorage();
     }
   }
 
-  get items() {
-    return this._items;
+  /**
+   * Getter to return the current model (enclosed in the current context)
+   */
+  get model() {
+    return SimplModel.get(undefined, this.context);
   }
 
-  set items(value) {
-    this._items = value;
-    this.refresh();
+  /**
+   * Setter to set the new model (enclosed in the current context)
+   */
+  set model(value) {
+    SimplModel.set(value, undefined, this.context);
+  }
+
+  #modelChangesSubscription() {
+    this.#modelSubscription?.();
+    this.#modelSubscription = SimplModel.subscribe((model, property) => {
+      this.isReactive && this.onUpdateState(property);
+    });        
+  }
+
+  onUpdateState() {
+    // Override this method in subclasses to react to model state changes
+  }
+
+  /**
+   * Loads the model from storage and updates the SimplModel with the stored data.
+   * This method is called during the first instantiation of the Element class.
+   */
+  #loadModelFromStorage() {
+    Promise.resolve().then(async () => {
+      const raw = await StorageService.loadAppModel();
+      if (raw) {
+        try {
+          const data = JSON.parse(raw);
+          for (const [context, value] of Object.entries(data)) {
+            SimplModel.model[context] = value;
+          }
+        } catch (e) {
+          console.error('Failed to load model from storage', e);
+        }
+      }
+    });
   }
 
   /**
    * Method to render the template and execute the onReady and addListenersFromTemplate methods
    * It will be called when the element is created and when the state or languages changes
    */
-  refresh() {
-    this.render();
-    this.onReady();
-    this.addListenersFromTemplate();
-    this.setValueWhenAllItemsAreSet();
+  refresh(force = false) {
+    clearTimeout(this.#refreshTimer);
+    this.#refreshTimer = setTimeout(() => {
+      this.#removeDomListeners();
+      this.render(force);
+      this.onReady(this.#redraws);
+      this.addListenersFromTemplate();
+      this.setValueWhenAllItemsAreSet();
+      this.#redraws++;
+    }, 10);
   }
 
-  /**
-   * Method to add listeners from the template
-   * It will look for all the elements with an attribute that starts with '(' and ends with ')'
-   * and will add the event listener to the element
-   * NOTE: the method declared in the template should be defined in the class as a public method
-   */
-  addListenersFromTemplate() {
-    clearTimeout(this.timerRef);
-    this.timerRef = setTimeout(() => {
-      for (const el of this.querySelectorAll('*')) {
-        const events = Object.values(el.attributes).filter((key) => key.name.startsWith('(') && key.name.endsWith(')')) || [];
-        events.forEach((event) => {
-          const eventName = event.name.substring(1, event.name.length - 1);
-          const methodName = event.value;
-          if (methodName === '__proto__' || methodName === 'constructor' || methodName === 'prototype') return;
-          if (typeof this[methodName] === 'function') {
-            try {
-              el.removeEventListener(eventName, this[methodName]);
-              el.addEventListener(eventName, this[methodName].bind(this));
-            } catch (error) {
-              console.error('Error adding event listener', eventName, methodName, error);
-            }
-          }
-        });
-      }
-    }, 100);
-  }
-
-  /**
-   * Helper to add listeners to html elements
-   * @param {string} id of the html element
-   * @param {string} event type ('click', 'input'...)
-   * @param {Function} callback function to execute in event (avoid arrow functions)
-   */
-  setEventListener(id, event, callback) {
-    const element = this.querySelector('#' + id);
-    if (element) {
-      element.removeEventListener(event, this.buttonBound);
-      this.buttonBound = callback.bind(this);
-      element.addEventListener(event, this.buttonBound);
-    }
-  }
-
-  /**
-   * Callback to update the template when state or languages changes
-   * @param {object} state of the model in context
-   * @returns the updated template
-   */
-  template(state) {
-    return '';
-  }
-
-  /**
-   * Callback to add listeners when the template is ready.
-   * Use setEventListener to add listeners
-   */
-  onReady() { }
-
-  /**
-   * Callback to set default value for some fields
-   */
-  setValueWhenAllItemsAreSet() { }
-
-  /**
-   * Method to force the render template.
-   * NOTE: Listeners will be destroyed and should be added again
-   */
-  render() {
-    if (Element.useMorhdom) {
-      const content = this.getStyle().concat(this.template(this.model));
-      const toNode = `<${this.tagName.toLowerCase()}>${content}</${this.tagName.toLowerCase()}>`;
-      morphdom(this, toNode, {
-        // Keep each custom element responsible for rendering its own internal DOM.
-        onBeforeElChildrenUpdated: (fromEl) => {
-          if (fromEl === this) return true;
-          return !fromEl.tagName?.includes('-');
-        },
-      });
-    } else {
-      this.innerHTML = this.getStyle().concat(this.template(this.model));
-    }
-
+  render(force = false) {
+    const templateHtml = this.template(SimplModel.clone[this.context]);
+    if (!force && templateHtml === this.#lastHtml) return;
+    this.#lastHtml = templateHtml;
+    this.innerHTML = this.getStyle().concat(templateHtml);
+    this.#upgradeCustomElements(this);
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (() => {
       'use strict';
@@ -178,7 +123,7 @@ export class Element extends HTMLElement {
     })();    
   }
 
-  getStyle() {
+    getStyle() {
     return this.style ? `<style>${this.prependTagNameToCSS(this.style, this.tagName)}</style>` : '';
   }
 
@@ -199,37 +144,100 @@ export class Element extends HTMLElement {
       return `${updatedSelectors} {`;
     });
   }
-  
-  /**
-   * 
-   * @param {string} id 
-   * @returns { Element }
-   */
+
+  onReady(redraws) {
+    // Override this method in subclasses to perform actions after the component is rendered
+  }
+
+  setValueWhenAllItemsAreSet() {
+    // Override this method in subclasses to set values when all items are set
+  }
+
   get(id) {
-    return document.getElementById(id);
+    return this.querySelector(`#${id}`);
   }
 
   /**
-   * Getter to return the current model (enclosed in the current context)
+   * Method to add listeners from the template
+   * It will look for all the elements with an attribute that starts with '(' and ends with ')'
+   * and will add the event listener to the element
+   * NOTE: the method declared in the template should be defined in the class as a public method
    */
-  get model() {
-    return SimplModel.get(undefined, this.context);
+  addListenersFromTemplate() {
+    clearTimeout(this.#timerRef);
+    this.#timerRef = setTimeout(() => {
+      for (const el of this.querySelectorAll('*')) {
+        const events = Object.values(el.attributes).filter((key) => key.name.startsWith('(') && key.name.endsWith(')')) || [];
+        events.forEach((event) => {
+          const eventName = event.name.substring(1, event.name.length - 1);
+          const methodName = event.value;
+          if (methodName === '__proto__' || methodName === 'constructor' || methodName === 'prototype') return;
+          if (typeof this[methodName] === 'function') {
+            try {
+              this.#setDomListener(el, eventName, this[methodName].bind(this));
+            } catch (error) {
+              console.error('Error adding event listener', eventName, methodName, error);
+            }
+          }
+        });
+      }
+    }, 100);
+  }
+
+    /**
+   * Helper to add listeners to html elements
+   * @param {string} id of the html element
+   * @param {string} event type ('click', 'input'...)
+   * @param {Function} callback function to execute in event (avoid arrow functions)
+   */
+  setEventListener(id, event, callback) {
+    const element = this.get(id);
+    this.#setDomListener(element, event, callback);
+  }
+
+  #setDomListener(element, event, handler) {
+    if (!element) return;
+
+    element.addEventListener(event, handler);
+    this.#domListeners.push({ element, event, handler });
+  }
+
+  #removeDomListeners() {
+    for (const { element, event, handler } of this.#domListeners) {
+      element.removeEventListener(event, handler);
+    }
+    this.#domListeners = [];
+  }
+  
+  setField(field, value) {
+    if(SimplModel.get(field, this.context) === value) return;
+    SimplModel.set(value, field, this.context);
   }
 
   /**
-   * Setter to set the new model (enclosed in the current context)
+   * Called when the element is added to the DOM. Loads view state.
    */
-  set model(value) {
-    SimplModel.set(value, undefined, this.context);
+  connectedCallback() {
+    this.#redraws = 0;
+    this.#modelChangesSubscription();
+    this.loadViewState();
   }
 
   /**
-   * Setter to set an item value in the model 
-   * @param {string} id of the item (enclosed in the current context)
-   * @param {any} value to set in the selected item
+   * Called when the element is removed from the DOM. Saves view state and unsubscribes.
    */
-  setField(id, value) {
-    SimplModel.set(value, id, this.context);
+  disconnectedCallback() {
+    this.saveViewState(); // TODO
+    this.#removeDomListeners();
+    this.#modelSubscription?.();
+  }
+
+  /**
+   * Return the custom element's tag name in lowercase.
+   * @returns {string} The tag name of the custom element
+   */
+  getTagName() {
+    return this.tagName.toLowerCase();
   }
 
   /**
@@ -238,20 +246,26 @@ export class Element extends HTMLElement {
    */
   getName() {
     return this.name || this.id;
+  }  
+
+  async loadDebouncedUserData() {
+    return new Promise((resolve) => {
+      clearTimeout(this.loadViewStateTimer);
+      this.loadViewStateTimer = setTimeout(async () => {
+        const result = await StorageService.loadUser(this.context);
+          if (result)
+            SimplModel.set(result, undefined, this.context);
+        resolve(result);
+      }, 50);
+    });
   }
 
   /**
    * Loads the view state from session storage.
    */
   async loadViewState() {
-    clearTimeout(this.loadViewStateTimer);
-    this.loadViewStateTimer = setTimeout(async () => {
-      const result = await StorageService.loadUser(this.context);
-      if (result) {
-        this.model = result;
-      }
-      this.refresh();
-    }, 10);
+    await this.loadDebouncedUserData();
+    this.refresh();
   }
 
   /**
@@ -259,5 +273,19 @@ export class Element extends HTMLElement {
    */
   async saveViewState() {
     StorageService.saveUser(this.context, this.model);
+  }
+  
+  /**
+   * Upgrades all custom elements within the given root.
+   * @private
+   * @param {Element} root - The root element to search
+   */
+  #upgradeCustomElements(root) {
+    for (const el of root.querySelectorAll('*')) {
+      const tag = el.tagName.toLowerCase();
+      if (tag.includes('-') && customElements.get(tag)) {
+        customElements.upgrade(el);
+      }
+    }
   }
 }
