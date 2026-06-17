@@ -2,6 +2,8 @@ import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
+import { ConfigService } from '../services/config-service.js';
+
 export class Element extends HTMLElement {
   #refreshTimer = undefined;
   #lastHtml = undefined;
@@ -31,7 +33,8 @@ export class Element extends HTMLElement {
             LanguageService.lang = result || 'en';
         }).catch(() => {});
       }
-      this.#loadModelFromStorage();
+      if(ConfigService.saveApp)
+        this.#loadModelFromStorage();
     }
   }
 
@@ -67,7 +70,7 @@ export class Element extends HTMLElement {
   #loadModelFromStorage() {
     Promise.resolve().then(async () => {
       const raw = await StorageService.loadAppModel();
-      if (raw) {
+      if (raw && ConfigService.saveApp) {
         try {
           const data = JSON.parse(raw);
           for (const [context, value] of Object.entries(data)) {
@@ -76,9 +79,14 @@ export class Element extends HTMLElement {
         } catch (e) {
           console.error('Failed to load model from storage', e);
         }
+        this.onAppDataLoaded();
       }
     });
   }
+
+  onAppDataLoaded() {}
+
+  onUserDataLoaded() {}
 
   /**
    * Method to render the template and execute the onReady and addListenersFromTemplate methods
@@ -123,7 +131,7 @@ export class Element extends HTMLElement {
     })();    
   }
 
-    getStyle() {
+  getStyle() {
     return this.style ? `<style>${this.prependTagNameToCSS(this.style, this.tagName)}</style>` : '';
   }
 
@@ -184,7 +192,7 @@ export class Element extends HTMLElement {
     }, 100);
   }
 
-    /**
+  /**
    * Helper to add listeners to html elements
    * @param {string} id of the html element
    * @param {string} event type ('click', 'input'...)
@@ -253,8 +261,9 @@ export class Element extends HTMLElement {
       clearTimeout(this.loadViewStateTimer);
       this.loadViewStateTimer = setTimeout(async () => {
         const result = await StorageService.loadUser(this.context);
-          if (result)
-            SimplModel.set(result, undefined, this.context);
+        if (result)
+          SimplModel.set(result, undefined, this.context);
+        this.onUserDataLoaded();
         resolve(result);
       }, 50);
     });
@@ -264,7 +273,8 @@ export class Element extends HTMLElement {
    * Loads the view state from session storage.
    */
   async loadViewState() {
-    await this.loadDebouncedUserData();
+    if (ConfigService.saveUser)
+      await this.loadDebouncedUserData();
     this.refresh();
   }
 
@@ -272,7 +282,8 @@ export class Element extends HTMLElement {
    * Saves the current view state to session storage.
    */
   async saveViewState() {
-    StorageService.saveUser(this.context, this.model);
+    if (ConfigService.saveUser)
+      StorageService.saveUser(this.context, this.model);
   }
   
   /**

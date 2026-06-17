@@ -55,8 +55,8 @@ ${ this.items.map(item => `
    * Sets the first item as default when no value is set.
    */
   setValueWhenAllItemsAreSet() {
-    if (this.items.length > 0 && this.model[this.name || this.id] == null) {
-      this.setField(this.name || this.id, this.items[0].id);
+    if (this.items.length > 0 && !this.model[this.getName()]) {
+      this.setField(this.getName(), this.items[0].id);
     }
   }
 }
