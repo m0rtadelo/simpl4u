@@ -14,6 +14,7 @@ export class Element extends HTMLElement {
   #domListeners = [];
   #removeKeys = {};
   static loaded = false;
+  static useMorphdom = true;
   isReactive = true;
   context = this.getAttribute('context') || 'global';
   name = this.getAttribute('name');
@@ -123,8 +124,42 @@ export class Element extends HTMLElement {
     const templateHtml = this.template(SimplModel.cloneContext(this.context));
     if (!force && templateHtml === this.#lastHtml) return;
     this.#lastHtml = templateHtml;
-    const tag = this.tagName.toLowerCase();
     const content = this.getStyle().concat(templateHtml);
+    if (Element.useMorphdom) {
+      this.#renderMorphdom(content, force);
+    } else {
+      this.innerHTML = content;
+      this.#upgradeCustomElements(this);
+    }
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (() => {
+      'use strict';
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      const forms = document.querySelectorAll('.needs-validation');
+
+      // Loop over them and prevent submission
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();    
+  }
+
+  /**
+   * Renders the template in place using morphdom, patching only what changed.
+   * @private
+   * @param {string} content - The full inner HTML (style + template) to render
+   * @param {boolean} force - Whether this is a forced render
+   */
+  #renderMorphdom(content, force) {
+    const tag = this.tagName.toLowerCase();
     // Nested custom elements that are reused (same logical instance) are left
     // untouched by morphdom and re-rendered by themselves, so they keep their
     // own internal DOM while still reacting to route/state changes.
@@ -156,25 +191,6 @@ export class Element extends HTMLElement {
     });
     nestedToRefresh.forEach((el) => el.refresh?.(force));
     this.#upgradeCustomElements(this);
-    // Example starter JavaScript for disabling form submissions if there are invalid fields
-    (() => {
-      'use strict';
-
-      // Fetch all the forms we want to apply custom Bootstrap validation styles to
-      const forms = document.querySelectorAll('.needs-validation');
-
-      // Loop over them and prevent submission
-      Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-
-          form.classList.add('was-validated');
-        }, false);
-      });
-    })();    
   }
 
   getStyle() {
