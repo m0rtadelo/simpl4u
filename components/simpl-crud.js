@@ -1,5 +1,4 @@
 import { StaticElement } from '../core/static-element.js';
-import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { ModalService } from '../services/modal-service.js';
 import { StorageService } from '../services/storage-service.js';
@@ -137,10 +136,10 @@ export class SimplCrud extends StaticElement {
    * @param {object} item - The item to edit.
    */
   async doEdit(item) {
-    SimplModel.set(JSON.parse(JSON.stringify(item)), undefined, '__simpl-modal');
+    this.model['__simpl-modal'] = JSON.parse(JSON.stringify(item));
     setTimeout(async () => {
       if (await ModalService.open(this.#generateForm(), 'edit-record')) {
-        const modified = SimplModel.model['__simpl-modal'];
+        const modified = this.model['__simpl-modal'];
         let modelData = JSON.parse(JSON.stringify(this.model[this.context][this.#dataKey]));
         modelData = modelData.filter((dataItem) => JSON.stringify(dataItem) !== JSON.stringify(item));
         if (await this.#hasUnique(modified, modelData)) {
@@ -165,7 +164,7 @@ export class SimplCrud extends StaticElement {
    * @param {object} item - The item to display.
    */
   async doDetail(item) {
-    SimplModel.set(item, undefined, '__simpl-modal');
+    this.model['__simpl-modal'] = item;
     await ModalService.open(this.#generateForm(true), 'detail-record', true);
   }
 

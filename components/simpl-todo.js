@@ -1,6 +1,5 @@
 import { ReactiveElement } from '../core/reactive-element.js';
 import { ModalService } from '../services/modal-service.js';
-import { SimplModel } from '../models/simpl-model.js';
 import { StorageService } from '../services/storage-service.js';
 import { TextService } from '../services/text-service.js';
 
@@ -385,10 +384,10 @@ ${this.disableEditPanel ? `
    * @param {object} [model] - The model (defaults to this.data)
    */
   async addToDo(key, model = this.data) {
-    SimplModel.set({}, undefined, ['__modal_todo']);
+    this.model['__modal_todo'] = {};
     if (await ModalService.open(`<${this.form} context="__modal_todo"></${this.form}>`, 'add-todo')) {
       model[key] = model[key] || [];
-      model[key].push(SimplModel.model['__modal_todo']);
+      model[key].push(this.model['__modal_todo']);
       this.saveData();
     }
   }
@@ -402,9 +401,9 @@ ${this.disableEditPanel ? `
     (Object.keys(model) || []).forEach(async (type) => {
       const index = model[type].findIndex((item) => item.id === id);
       if (index !== -1) {
-        SimplModel.model['__modal_todo'] = JSON.parse(JSON.stringify(model[type][index]));
+        this.model['__modal_todo'] = JSON.parse(JSON.stringify(model[type][index]));
         if (await ModalService.open(`<${this.form} context="__modal_todo"></${this.form}>`, 'edit-todo')) {
-          const updated = SimplModel.model['__modal_todo'];
+          const updated = this.model['__modal_todo'];
           model[type][index] = updated;
           this.saveData();
         }
