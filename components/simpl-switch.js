@@ -31,7 +31,7 @@ export class SimplSwitch extends FormElement {
    * Toggles the switch value on label click.
    */
   click() {
-    this.setField(this.getName(), !this.model[this.getName()]);
+    this.setField(this.getName(), !this.getField(this.getName()));
     this.refresh();
   }
 }

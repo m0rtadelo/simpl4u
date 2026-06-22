@@ -312,7 +312,7 @@ export class Element extends HTMLElement {
    */
   async saveViewState() {
     if (ConfigService.saveUser)
-      StorageService.saveUser(this.context, this.model[this.context]);
+      StorageService.saveUser(this.context, this.data);
   }
   
   async saveAppState() {

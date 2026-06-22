@@ -22,8 +22,7 @@ export class SimplCombobox extends FormElement {
         z-index: 1000;
         width: 100%;
       }`;
-    this.model[this.context] = this.model[this.context] || {};
-    this.text = this.model[this.context][this.getName()];
+    this.text = this.getField(this.getName());
     const match = this._items.find(item => item.id === this.text);
     if (match) this.text = match.text;
   }
