@@ -3,6 +3,7 @@ import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
 import { ConfigService } from '../services/config-service.js';
+import morphdom from '../lib/morphdom.js';
 
 export class Element extends HTMLElement {
   #refreshTimer = undefined;
@@ -119,11 +120,41 @@ export class Element extends HTMLElement {
   }
 
   render(force = false) {
-    const templateHtml = this.template(SimplModel.clone[this.context] || {});
+    const templateHtml = this.template(SimplModel.cloneContext(this.context));
     if (!force && templateHtml === this.#lastHtml) return;
-    console.log('Rendering', this.getTagName(), 'force:', force, 'redraws:', this.#redraws);
     this.#lastHtml = templateHtml;
-    this.innerHTML = this.getStyle().concat(templateHtml);
+    const tag = this.tagName.toLowerCase();
+    const content = this.getStyle().concat(templateHtml);
+    // Nested custom elements that are reused (same logical instance) are left
+    // untouched by morphdom and re-rendered by themselves, so they keep their
+    // own internal DOM while still reacting to route/state changes.
+    const nestedToRefresh = [];
+    morphdom(this, `<${tag}>${content}</${tag}>`, {
+      // Only patch this element's children, never the host element itself,
+      // so attributes set by the consumer (id, class, col-*, w-100, ...) are kept.
+      childrenOnly: true,
+      // Key nodes so logically different components are not reused for one
+      // another (e.g. <my-form context="form1"> vs context="form2").
+      getNodeKey: (node) => {
+        if (node.nodeType !== 1) return undefined;
+        const nodeTag = node.tagName;
+        if (nodeTag?.includes('-') && !node.id) {
+          return `${nodeTag}|${node.getAttribute('context') || ''}|${node.getAttribute('name') || ''}`;
+        }
+        return node.id || undefined;
+      },
+      onBeforeElUpdated: (fromEl) => {
+        if (fromEl === this) return true;
+        // A reused nested custom element: leave it untouched and let it
+        // re-render its own content (it owns its internal DOM).
+        if (fromEl.tagName?.includes('-')) {
+          nestedToRefresh.push(fromEl);
+          return false;
+        }
+        return true;
+      },
+    });
+    nestedToRefresh.forEach((el) => el.refresh?.(force));
     this.#upgradeCustomElements(this);
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (() => {

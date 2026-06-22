@@ -32,6 +32,16 @@ export class SimplModel {
   }
 
   /**
+   * Get a deep clone of a single context, avoiding cloning the whole model.
+   * @param {string} [context='global'] model context namespace
+   * @returns {object} deep clone of the context data (empty object if missing)
+   */
+  static cloneContext(context = 'global') {
+    const ctx = this.#model[context];
+    return ctx ? JSON.parse(JSON.stringify(ctx)) : {};
+  }
+
+  /**
    * Get a value from the model.
    * @param {string} [id] property key to retrieve
    * @param {string} [context='global'] model context namespace
