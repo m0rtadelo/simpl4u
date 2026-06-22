@@ -28,7 +28,7 @@ export class SimplModel {
   }
 
   static get clone() {
-    return JSON.parse(JSON.stringify(this.#model));
+    return JSON.parse(JSON.stringify(this.#model)) || {};
   }
 
   /**

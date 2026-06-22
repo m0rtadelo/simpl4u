@@ -178,14 +178,14 @@ export class SimplCrud extends StaticElement {
     if (await ModalService.confirm('delete-record-confirm', 'delete-record')) {
       const result = [];
       let deleted = false;
-      for (const dataItem of this.model[this.#dataKey]) {
+      for (const dataItem of this.model[this.context][this.#dataKey]) {
         if (JSON.stringify(dataItem) !== JSON.stringify(item) || deleted) {
           result.push(dataItem);
         } else {
           deleted = true;
         }
       }
-      this.model[this.#dataKey] = result;
+      this.model[this.context][this.#dataKey] = result;
       await this.#saveData();
       ToastService.success(LanguageService.i18n('record-deleted'));
     }

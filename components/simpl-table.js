@@ -27,6 +27,7 @@ export class SimplTable extends ReactiveElement {
    * @returns {string} The HTML template string.
    */
   template(state) {
+    console.log(state);
     return `
     <div class="card mt-4">
 <table class="table table-striped table-hover">

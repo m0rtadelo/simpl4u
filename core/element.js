@@ -53,11 +53,22 @@ export class Element extends HTMLElement {
     SimplModel.model = value;
   }
 
+  /**
+   * Getter to return the current data for the context
+   */
+  get data() {
+    return this.model?.[this.context] || {};
+  }
+
+  set data(value) {
+    this.model[this.context] = value;
+  }
+
   #modelChangesSubscription() {
     this.#modelSubscription?.();
     this.#modelSubscription = SimplModel.subscribe((model, property) => {
-      this.isReactive && this.onUpdateState(property);
-    });        
+      this.isReactive && this.onUpdateState();
+    });
   }
 
   onUpdateState() {
@@ -108,7 +119,7 @@ export class Element extends HTMLElement {
   }
 
   render(force = false) {
-    const templateHtml = this.template(SimplModel.clone[this.context]);
+    const templateHtml = this.template(SimplModel.clone[this.context] || {});
     if (!force && templateHtml === this.#lastHtml) return;
     console.log('Rendering', this.getTagName(), 'force:', force, 'redraws:', this.#redraws);
     this.#lastHtml = templateHtml;
@@ -222,15 +233,16 @@ export class Element extends HTMLElement {
   }
   
   setField(field, value, persistent = true, context = this.context) {
-    if(SimplModel.get(field, context) === value) return;
-    SimplModel.set(value, field, context);
+    if (SimplModel.model?.[context]?.[field] === value) return;
+    SimplModel.model[context] = SimplModel.model[context] || {};
+    SimplModel.model[context][field] = value;
     if (!persistent) {
       this.#removeKeys[field] = true;
     }
   }
 
   getField(field, context = this.context) {
-    return SimplModel.get(field, context);
+    return SimplModel.model?.[context]?.[field];
   }
 
   /**
@@ -246,7 +258,7 @@ export class Element extends HTMLElement {
    * Called when the element is removed from the DOM. Saves view state and unsubscribes.
    */
   disconnectedCallback() {
-    this.saveViewState(); // TODO
+    this.saveViewState();
     this.#removeDomListeners();
     this.#modelSubscription?.();
   }
@@ -275,13 +287,14 @@ export class Element extends HTMLElement {
         if (result) {
           for (const [key, value] of Object.entries(result)) {
             if (!this.#removeKeys[key]) {
-              SimplModel.model[key] = value;
+              SimplModel.model[this.context] = SimplModel.model[this.context] || {};
+              SimplModel.model[this.context][key] = value;
             }
           }
         }
         this.onUserDataLoaded();
         resolve(result);
-      }, 50);
+      }, 100);
     });
   }
 

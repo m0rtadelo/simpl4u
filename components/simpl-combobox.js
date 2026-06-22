@@ -22,7 +22,8 @@ export class SimplCombobox extends FormElement {
         z-index: 1000;
         width: 100%;
       }`;
-    this.text = this.model[this.name || this.id];
+    this.model[this.context] = this.model[this.context] || {};
+    this.text = this.model[this.context][this.getName()];
     const match = this._items.find(item => item.id === this.text);
     if (match) this.text = match.text;
   }
@@ -35,13 +36,13 @@ export class SimplCombobox extends FormElement {
   template(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
-<label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
+<label for="${this.getName()}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
 <div style="position: relative">
-  <input (input)="change" (keydown)="onKeyDown" (blur)="blur" (focus)="focus" id="${this.name || this.id}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${TextService.htmlEscape(this.text || '')}" list="${this.name || this.id}-list" style="cursor: pointer"></input>
+  <input (input)="change" (keydown)="onKeyDown" (blur)="blur" (focus)="focus" id="${this.getName()}" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control form-select col-12" type="text" value="${TextService.htmlEscape(this.text || '')}" list="${this.getName()}-list" style="cursor: pointer"></input>
   <button (click)="clear" type="button" class="btn p-0" title="${LanguageService.i18n('clear')}" style="position: absolute; right: 40px; top: 25%; border: none; background: none; z-index: 5; line-height: 1; ${this.text ? '' : 'display: none'}">&times;</button>
 </div>
 <div style="position: relative">
-  <simpl-combobox-list id="${this.name || this.id}-list"></simpl-combobox-list>
+  <simpl-combobox-list id="${this.getName()}-list"></simpl-combobox-list>
 </div>
 </div>
         `;

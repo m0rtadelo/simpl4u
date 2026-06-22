@@ -46,7 +46,8 @@ export class SimplSelect extends FormElement {
    * Sets the first item as default when no value is set.
    */
   setValueWhenAllItemsAreSet() {
-    if (this.items.length > 0 && !this.model[this.getName()]) {
+    this.model[this.context] = this.model[this.context] || {};
+    if (this.items.length > 0 && !this.model[this.context]?.[this.getName()]) {
       this.setField(this.getName(), this.items[0].id);
     }
   }

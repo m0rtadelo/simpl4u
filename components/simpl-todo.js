@@ -17,8 +17,11 @@ export class SimplTodo extends ReactiveElement {
   constructor() {
     super();
     this.loadData().then((model) => {
-      this.model = model || {};
-    });    
+      this.data = model || {};
+      if (!model || JSON.stringify(model) === '{}') {
+        this.resetModel();
+      }
+    });
     this.style = `
       .dotted {
         border: dashed 1px var(--bs-border-color);
@@ -95,7 +98,7 @@ export class SimplTodo extends ReactiveElement {
    */
   onAddPanel() {
     ModalService.prompt('add-panel').then((result) => {
-      this.addPanel(this.model, result);
+      this.addPanel(this.data, result);
     });
   }
 
@@ -111,9 +114,9 @@ export class SimplTodo extends ReactiveElement {
       return;
     }
     if (id.startsWith('_panel_')) {
-      this.model = this.movePanel(id, destiny, this.model);
+      this.data = this.movePanel(id, destiny, this.data);
     } else if (destiny.id) {
-      this.model = this.moveCard(id, destiny, this.model);
+      this.data = this.moveCard(id, destiny, this.data);
     }
   }
 
@@ -127,7 +130,7 @@ export class SimplTodo extends ReactiveElement {
     if (!/^[_a-zA-Z][_a-zA-Z0-9]*$/.test(id) && !/^_panel_[_a-zA-Z][_a-zA-Z0-9]*$/.test(id)) {
       return;
     }
-    await this.deleteItem(id, this.model);
+    await this.deleteItem(id, this.data);
   }
 
   /**
@@ -153,7 +156,7 @@ export class SimplTodo extends ReactiveElement {
   async onAddToDo(event) {
     const destiny = event.target.closest('.col');
     const key = destiny.getAttribute('name');
-    await this.addToDo(key, this.model);
+    await this.addToDo(key, this.data);
   }
 
   /**
@@ -162,7 +165,7 @@ export class SimplTodo extends ReactiveElement {
    */
   async editToDo(event) {
     const id = event.target.closest('.card').id;
-    await this.editTodo(id, this.model);
+    await this.editTodo(id, this.data);
   }
 
   /**
@@ -206,11 +209,11 @@ ${this.disableEditPanel ? `
     const name = event.target.closest('.col').getAttribute('name');
     ModalService.prompt('set-panel-name', undefined, name).then((result) => {
       if (result && result !== name) {
-        const entries = Object.entries(this.model);
+        const entries = Object.entries(this.data);
         const indexOri = entries.findIndex((item) => item[0] === name);
-        this.model[result] = this.model[name];
-        delete this.model[name];
-        this.model = this.reorderMap(this.model, Object.keys(this.model).length - 1, indexOri);
+        this.data[result] = this.data[name];
+        delete this.data[name];
+        this.data = this.reorderMap(this.data, Object.keys(this.data).length - 1, indexOri);
         this.renameIds();
         this.saveData();
       }
@@ -236,16 +239,16 @@ ${this.disableEditPanel ? `
       item = item || {};
       item.id = `${type}_${index}`;
     });
-    this.model[type] = state[type];
+    this.data[type] = state[type];
     return this.renderItemsFn?.(JSON.parse(JSON.stringify(state)), type) || '';
   }
 
   /**
    * Resets the model to the default todo structure.
-   * @param {object} [model] - The model to reset (defaults to this.model)
+   * @param {object} [model] - The model to reset (defaults to this.data)
    */
-  resetModel(model = this.model) {
-    model = {
+  resetModel(model = this.data) {
+    this.data = {
       ToDo: [],
       Doing: [],
       Done: [],
@@ -266,18 +269,18 @@ ${this.disableEditPanel ? `
 
   /**
    * Persists the model to storage.
-   * @param {object} [model] - The model to save (defaults to this.model)
+   * @param {object} [model] - The model to save (defaults to this.data)
    */
-  async saveData(model = this.model) {
+  async saveData(model = this.data) {
     this.renameIds(model);
-    await StorageService.saveApp(this.context, model || this.model);
+    await StorageService.saveApp(this.context, model || this.data);
   }
 
   /**
    * Renames item ids to match their current position.
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    */
-  renameIds(model = this.model) {
+  renameIds(model = this.data) {
     Object.keys(model).forEach((key) => {
       model[key].forEach((item, index) => {
         item.id = `${key}_${index}`;
@@ -297,10 +300,10 @@ ${this.disableEditPanel ? `
    * Moves a panel to a new position.
    * @param {string} id - The panel id (with _panel_ prefix)
    * @param {Element} destiny - The drop target element
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    * @returns {object} The updated model
    */
-  movePanel(id, destiny, model = this.model) {
+  movePanel(id, destiny, model = this.data) {
     const ori = id.substring(7);
     const des = destiny.getAttribute('name');
     const entries = Object.entries(model);
@@ -315,10 +318,10 @@ ${this.disableEditPanel ? `
    * Moves a card from one panel to another.
    * @param {string} id - The card id
    * @param {Element} destiny - The drop target element
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    * @returns {object} The updated model
    */
-  moveCard(id, destiny, model = this.model) {
+  moveCard(id, destiny, model = this.data) {
     destiny.appendChild(document.getElementById(id));
     const dest = destiny.id.substring(7);
     const collection = id.split('_')[0];
@@ -352,9 +355,9 @@ ${this.disableEditPanel ? `
   /**
    * Deletes a panel or card after confirmation.
    * @param {string} id - The id of the item to delete
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    */
-  async deleteItem(id, model = this.model) {
+  async deleteItem(id, model = this.data) {
     const result = await ModalService.confirm('delete-card');
     if (result) {
       if (id.startsWith('_panel_')) {
@@ -379,9 +382,9 @@ ${this.disableEditPanel ? `
   /**
    * Opens a modal form to add a new todo card to a panel.
    * @param {string} key - The panel key
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    */
-  async addToDo(key, model = this.model) {
+  async addToDo(key, model = this.data) {
     SimplModel.set({}, undefined, ['__modal_todo']);
     if (await ModalService.open(`<${this.form} context="__modal_todo"></${this.form}>`, 'add-todo')) {
       model[key] = model[key] || [];
@@ -393,9 +396,9 @@ ${this.disableEditPanel ? `
   /**
    * Opens a modal form to edit an existing todo card.
    * @param {string} id - The card id
-   * @param {object} [model] - The model (defaults to this.model)
+   * @param {object} [model] - The model (defaults to this.data)
    */
-  async editTodo(id, model = this.model) {
+  async editTodo(id, model = this.data) {
     (Object.keys(model) || []).forEach(async (type) => {
       const index = model[type].findIndex((item) => item.id === id);
       if (index !== -1) {
