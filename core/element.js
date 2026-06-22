@@ -6,7 +6,8 @@ import { ConfigService } from '../services/config-service.js';
 import morphdom from '../lib/morphdom.js';
 
 export class Element extends HTMLElement {
-  #refreshTimer = undefined;
+  #refreshScheduled = false;
+  #pendingForce = false;
   #lastHtml = undefined;
   #timerRef = undefined;
   #modelSubscription = undefined;
@@ -109,15 +110,22 @@ export class Element extends HTMLElement {
    * It will be called when the element is created and when the state or languages changes
    */
   refresh(force = false) {
-    clearTimeout(this.#refreshTimer);
-    this.#refreshTimer = setTimeout(() => {
+    this.#pendingForce = this.#pendingForce || force;
+    if (this.#refreshScheduled) return;
+    this.#refreshScheduled = true;
+    // Batch all pending refreshes into a single animation frame so the browser
+    // paints once instead of staggering component renders.
+    requestAnimationFrame(() => {
+      this.#refreshScheduled = false;
+      const force = this.#pendingForce;
+      this.#pendingForce = false;
       this.#removeDomListeners();
       this.render(force);
       this.onReady(this.#redraws);
       this.addListenersFromTemplate();
       this.setValueWhenAllItemsAreSet();
       this.#redraws++;
-    }, 10);
+    });
   }
 
   render(force = false) {

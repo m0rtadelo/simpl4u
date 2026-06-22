@@ -8,8 +8,10 @@ export class SimplModel {
   static #rawCache = new WeakMap();
   static #model = SimplModel.#createReactiveModel({});
   static #subscribers = new Set();
+  static #notifyTimeout;
+  static #dirty = false;
+  static #pendingProperty;
   static #lastNotifiedModel = '';
-  static notifyTimeout;
 
   /**
    * Replace the whole reactive model.
@@ -83,13 +85,24 @@ export class SimplModel {
   }
 
   static #notify(property) {
-    SimplModel.notifyTimeout = setTimeout(() => {
+    // Coalesce bursts of mutations into a single notification per debounce
+    // window instead of serializing the whole model on every change.
+    SimplModel.#dirty = true;
+    SimplModel.#pendingProperty = property;
+    if (SimplModel.#notifyTimeout) return;
+    SimplModel.#notifyTimeout = setTimeout(() => {
+      SimplModel.#notifyTimeout = undefined;
+      if (!SimplModel.#dirty) return;
+      SimplModel.#dirty = false;
+      // Serialize once per debounce window (not per mutation) and skip the
+      // notification when nothing actually changed. This also breaks render
+      // loops caused by components that mutate the model while rendering.
       const actualModel = JSON.stringify(SimplModel.#model);
       if (actualModel === SimplModel.#lastNotifiedModel) return;
       SimplModel.#lastNotifiedModel = actualModel;
-      clearTimeout(SimplModel.notifyTimeout);
+      const prop = SimplModel.#pendingProperty;
       for (const callback of SimplModel.#subscribers) {
-        callback(SimplModel.#model, property);
+        callback(SimplModel.#model, prop);
       }
     }, 10);
   }
