@@ -10,6 +10,9 @@ import { TextService } from '../services/text-service.js';
  */
 export class SimplTodo extends ReactiveElement {
   form = this.getAttribute('form');
+  disableAddPanel = this.hasAttribute('disableAddPanel');
+  disableEditPanel = this.hasAttribute('disableEditPanel');
+  disableCardMovement = this.hasAttribute('disableCardMovement');
 
   constructor() {
     super();
@@ -73,7 +76,7 @@ export class SimplTodo extends ReactiveElement {
     <div class="row" ctx="${this.context}">
       ${this.renderPanels(state)}
       <div class="col-1">
-        <div class="row">
+        <div class="row" ${this.disableAddPanel ? 'style="display:none"' : ''}>
           <div class="col dotted text-center">
             <h1 class="bi bi-plus-square mt-2 pointer" (click)="onAddPanel"></h1>
           </div>
@@ -172,11 +175,18 @@ export class SimplTodo extends ReactiveElement {
     Object.keys(state)?.forEach(key => {
       const safeKey = TextService.htmlEscape(key);
       result += `
-      <div class="col dotted" draggable="true" id="_panel_${safeKey}" (drop)="onDrop" (dragover)="onDragOver" (dragstart)="drag">
+      <div class="col dotted" draggable="${!this.disableCardMovement}" id="_panel_${safeKey}" (drop)="onDrop" (dragover)="onDragOver" (dragstart)="drag">
         <div class="row">
-          <div class="col pointer" name="${safeKey}">
-            <h3 (click)="setPanelName">${safeKey}</h3>
-          </div>
+${this.disableEditPanel ? `
+  <div class="col" name="${safeKey}">
+    <h3>${safeKey}</h3>
+  </div>
+  ` : `
+  <div class="col pointer" name="${safeKey}">
+    <h3 (click)="setPanelName">${safeKey}</h3>
+  </div>
+  `}
+
           <div class="col text-end" name="${safeKey}">
             <h5 class="bi clickable bi-plus-square mt-2 panel-icon" (click)="onAddToDo"></h5>
           </div>

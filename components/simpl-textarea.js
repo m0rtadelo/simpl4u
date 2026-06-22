@@ -18,7 +18,7 @@ export class SimplTextarea extends FormElement {
     return `
     <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
       <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${super.isRequired() ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-      <textarea autofocus="true" (input)="change" ${super.isRequired()}  class="form-control col-12" type="text" rows="${this.rows}">${TextService.htmlEscape(state[this.name || this.id] || '')}</textarea>
+      <textarea ${this.disabled ? 'disabled' : ''} autofocus="true" (input)="change" ${super.isRequired()}  class="form-control col-12" type="text" rows="${this.rows}">${TextService.htmlEscape(state[this.name || this.id] || '')}</textarea>
     </div>
     `;
   }

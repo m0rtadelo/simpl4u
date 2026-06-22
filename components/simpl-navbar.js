@@ -84,7 +84,7 @@ export class SimplNavBar extends ReactiveElement {
   }
 
   /**
-   * Subscribes to table events (e.g., create, update, delete, detail).
+   * Subscribes to events (e.g., click).
    * 
    * @param {Function} callback - The callback function to execute when an event occurs.
    * @returns {Function} A function to unsubscribe the callback.
@@ -98,7 +98,7 @@ export class SimplNavBar extends ReactiveElement {
    * Notifies all subscribers of an action.
    * 
    * @private
-   * @param {string} action - The action performed (e.g., 'create', 'update', 'delete', 'detail').
+   * @param {string} action - The action performed (e.g., 'click').
    * @param {object} data - The data associated with the action.
    */
   #notify(action, data) {

@@ -33,7 +33,7 @@ export class SimplCrud extends StaticElement {
   constructor() {
     super();
     StorageService.loadApp(this.context).then((model) => {
-      this.model = model || {};
+      this.model = { ...(this.model || {}), ...(model || {}) };
       if (!this.model[this.#dataKey]) {
         this.model[this.#dataKey] = [];
       }

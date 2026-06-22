@@ -31,16 +31,7 @@ export class SimplSelect extends FormElement {
    * @returns {string} The HTML template string
    */
   template(state) {
-    return `
-<div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
-<label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
-<select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${LanguageService.i18n(this.label)}">
-${ this.items.map(item => `
-  <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
-`) }
-</select>
-</div>
-    `;
+    return this.label ? this.#selectWithLabel(state) : this.#selectWithoutLabel(state);
   }
 
   /**
@@ -58,6 +49,31 @@ ${ this.items.map(item => `
     if (this.items.length > 0 && !this.model[this.getName()]) {
       this.setField(this.getName(), this.items[0].id);
     }
+  }
+
+  #selectWithLabel(state) {
+    return `
+<div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
+<label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
+<select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${LanguageService.i18n(this.label)}">
+${ this.items.map(item => `
+  <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
+`) }
+</select>
+</div>
+    `;
+  }
+
+  #selectWithoutLabel(state) {
+    return `
+<div ${this.hidden ? 'style="display:none"' : ''}>
+<select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${LanguageService.i18n(this.label)}">
+${ this.items.map(item => `
+  <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
+`) }
+</select>
+</div>
+    `;
   }
 }
 customElements.define('simpl-select', SimplSelect);

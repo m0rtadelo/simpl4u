@@ -11,6 +11,7 @@ export class Element extends HTMLElement {
   #modelSubscription = undefined;
   #redraws = 0;
   #domListeners = [];
+  #removeKeys = {};
   static loaded = false;
   isReactive = true;
   context = this.getAttribute('context') || 'global';
@@ -73,8 +74,10 @@ export class Element extends HTMLElement {
       if (raw && ConfigService.saveApp) {
         try {
           const data = JSON.parse(raw);
-          for (const [context, value] of Object.entries(data)) {
-            SimplModel.model[context] = value;
+          for (const [key, value] of Object.entries(data)) {
+            if (!this.#removeKeys[key]) {
+              SimplModel.model[key] = value;
+            }
           }
         } catch (e) {
           console.error('Failed to load model from storage', e);
@@ -107,6 +110,7 @@ export class Element extends HTMLElement {
   render(force = false) {
     const templateHtml = this.template(SimplModel.clone[this.context]);
     if (!force && templateHtml === this.#lastHtml) return;
+    console.log('Rendering', this.getTagName(), 'force:', force, 'redraws:', this.#redraws);
     this.#lastHtml = templateHtml;
     this.innerHTML = this.getStyle().concat(templateHtml);
     this.#upgradeCustomElements(this);
@@ -217,9 +221,16 @@ export class Element extends HTMLElement {
     this.#domListeners = [];
   }
   
-  setField(field, value) {
-    if(SimplModel.get(field, this.context) === value) return;
-    SimplModel.set(value, field, this.context);
+  setField(field, value, persistent = true, context = this.context) {
+    if(SimplModel.get(field, context) === value) return;
+    SimplModel.set(value, field, context);
+    if (!persistent) {
+      this.#removeKeys[field] = true;
+    }
+  }
+
+  getField(field, context = this.context) {
+    return SimplModel.get(field, context);
   }
 
   /**
@@ -261,8 +272,13 @@ export class Element extends HTMLElement {
       clearTimeout(this.loadViewStateTimer);
       this.loadViewStateTimer = setTimeout(async () => {
         const result = await StorageService.loadUser(this.context);
-        if (result)
-          SimplModel.set(result, undefined, this.context);
+        if (result) {
+          for (const [key, value] of Object.entries(result)) {
+            if (!this.#removeKeys[key]) {
+              SimplModel.model[key] = value;
+            }
+          }
+        }
         this.onUserDataLoaded();
         resolve(result);
       }, 50);
