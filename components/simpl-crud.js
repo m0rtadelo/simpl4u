@@ -27,20 +27,17 @@ export class SimplCrud extends StaticElement {
   subscription;
 
   get #dataKey() {
-    return this.name || 'data';
+    return this.getName() || 'data';
   }
 
   constructor() {
     super();
     StorageService.loadApp(this.context).then((model) => {
-      this.model = { ...(this.model || {}), ...(model || {}) };
-      if (!this.model[this.#dataKey]) {
-        this.model[this.#dataKey] = [];
+      this.setField(this.#dataKey, (model?.[this.#dataKey] || []));
+      if (!this.model[this.context][this.#dataKey]) {
+        this.model[this.context][this.#dataKey] = [];
       }
     });
-    if (!this.model[this.#dataKey]) {
-      this.model[this.#dataKey] = [];
-    }
   }
 
   /**
@@ -50,7 +47,7 @@ export class SimplCrud extends StaticElement {
    */
   template() {
     return `
-    <simpl-table id="simpl-table" actions="${this.actions}" name="${this.name || 'data'}" context="${this.context}"></simpl-table>
+    <simpl-table id="simpl-table" actions="${this.actions}" name="${this.getName() || 'data'}" context="${this.context}"></simpl-table>
     `;
   }
 
@@ -117,16 +114,18 @@ export class SimplCrud extends StaticElement {
           if (items.length) defaults[f.name] = items[0].id;
         }
       }
-      SimplModel.set(defaults, undefined, '__simpl-modal');
+      this.model['__simpl-modal'] = defaults;
     }
     if (await ModalService.open(this.#generateForm(), 'new-record' )) {
-      const modalData = SimplModel.model['__simpl-modal'];
-      if (await this.#hasUnique(modalData, this.model[this.#dataKey])) {
+      const modalData = this.model['__simpl-modal'];
+      if (await this.#hasUnique(modalData, this.getField(this.#dataKey))) {
         this.doCreate(true);
         return;
       }
-      this.model[this.#dataKey] = this.model[this.#dataKey] || [];
-      this.model[this.#dataKey].push(this.#addIndex(modalData));
+      const collection = this.getField(this.#dataKey) || [];
+      this.setField(this.#dataKey, collection);
+      collection.push(this.#addIndex(modalData));
+      this.setField(this.#dataKey, collection);
       await this.#saveData();
       ToastService.success(LanguageService.i18n('record-created'));
     }
@@ -142,15 +141,15 @@ export class SimplCrud extends StaticElement {
     setTimeout(async () => {
       if (await ModalService.open(this.#generateForm(), 'edit-record')) {
         const modified = SimplModel.model['__simpl-modal'];
-        let modelData = JSON.parse(JSON.stringify(this.model[this.#dataKey]));
+        let modelData = JSON.parse(JSON.stringify(this.model[this.context][this.#dataKey]));
         modelData = modelData.filter((dataItem) => JSON.stringify(dataItem) !== JSON.stringify(item));
         if (await this.#hasUnique(modified, modelData)) {
           this.doEdit(item);
           return;
         }
-        this.model[this.#dataKey].forEach((dataItem, index) => {
+        this.model[this.context][this.#dataKey].forEach((dataItem, index) => {
           if (JSON.stringify(dataItem) === JSON.stringify(item)) {
-            this.model[this.#dataKey][index] = modified;
+            this.model[this.context][this.#dataKey][index] = modified;
             item = {}; // Avoid modifying the item again in case of multiple matches
           }
         });
@@ -198,10 +197,11 @@ export class SimplCrud extends StaticElement {
    * @private
    */
   async #saveData() {
-    const copy = {...this.model};
-    delete copy.filter;
-    delete copy.order;
-    delete copy.order_direction;
+    //const data = this.model[this.context];
+    const copy = {...this.model[this.context]};
+    delete copy._filter;
+    delete copy._order;
+    delete copy._order_direction;
     await StorageService.saveApp(this.context, copy);
   }
 
@@ -235,7 +235,7 @@ export class SimplCrud extends StaticElement {
   #addIndex(data) {
     this.form.forEach((field) => {
       if (field.index) {
-        const arr = this.model?.[this.#dataKey];
+        const arr = this.model?.[this.context]?.[this.#dataKey];
         const index = arr?.length ? Math.max(...arr.map((item) => item[field.name])) + 1 : 0;
         data[field.name] = index;
       }

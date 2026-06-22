@@ -1,5 +1,4 @@
 import { FormElement } from '../core/form-element.js';
-import { SimplModel } from '../models/simpl-model.js';
 import { LanguageService } from '../services/language-service.js';
 import { TextService } from '../services/text-service.js';
 
@@ -16,8 +15,8 @@ export class SimplColor extends FormElement {
     return `
     <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
     ${this.label ? `
-      <label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${super.isRequired() ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>`: ''}
-      <input id="${this.name || this.id}" (input)="change" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control col-12 form-control-color" type="color" value="${TextService.htmlEscape(state[this.name || this.id] || '#000000')}"></input>
+      <label for="${this.getName()}" class="form-label col-12">${LanguageService.i18n(this.label)}${super.isRequired() ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>`: ''}
+      <input id="${this.getName()}" (input)="change" ${super.isRequired()} ${this.disabled ? 'disabled' : ''} class="form-control col-12 form-control-color" type="color" value="${TextService.htmlEscape(state?.[this.getName()] || '#000000')}"></input>
     </div>
     `;
   }
@@ -27,7 +26,7 @@ export class SimplColor extends FormElement {
    * @param {Event} value - The input event
    */
   change(value) {
-    SimplModel.set(value.target.value, this.name || this.id, this.context);
+    this.setField(this.getName(), value.target.value);
   }
 
   /**

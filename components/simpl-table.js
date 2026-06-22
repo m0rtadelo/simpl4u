@@ -15,7 +15,7 @@ export class SimplTable extends ReactiveElement {
 
   constructor() {
     super();
-    if (!this.model[this.name]) {
+    if (!this.getField(this.name)) {
       this.setField(this.name, []);
     }
   }
@@ -80,8 +80,8 @@ export class SimplTable extends ReactiveElement {
     });
     (this.getHeaders() || []).forEach((header) => {
       this.setEventListener(header, 'click', () => {
-        this.model['order_direction'] = this.model['order_direction'] === 'asc' ? 'desc' : 'asc';
-        this.setField('order', header);
+        this.model[this.context]['_order_direction'] = this.model[this.context]['_order_direction'] === 'asc' ? 'desc' : 'asc';
+        this.setField('_order', header);
       });
     });
   }
@@ -162,8 +162,8 @@ export class SimplTable extends ReactiveElement {
    */
   getHeaders() {
     let headers = [];
-    if (this.model[this.name]?.length) {
-      const item = this.model[this.name][0];
+    if (this.model[this.context][this.name]?.length) {
+      const item = this.model[this.context][this.name][0];
       headers = Object.keys(item);
     }
     return this.headers?.length ? this.headers : headers;
@@ -177,8 +177,8 @@ export class SimplTable extends ReactiveElement {
   renderHeaders() {
     const headers = this.getHeaders();
     return headers.map((header) => `<th id="${TextService.htmlEscape(header)}" style="cursor: pointer">
-    ${this.model['order'] === header && this.model['order_direction'] == 'asc' ? '<span class="bi bi-arrow-up"></span>' : ''}
-    ${this.model['order'] === header && this.model['order_direction'] == 'desc' ? '<span class="bi bi-arrow-down"></span>' : ''}
+    ${this.model[this.context]['_order'] === header && this.model[this.context]['_order_direction'] == 'asc' ? '<span class="bi bi-arrow-up"></span>' : ''}
+    ${this.model[this.context]['_order'] === header && this.model[this.context]['_order_direction'] == 'desc' ? '<span class="bi bi-arrow-down"></span>' : ''}
     ${TextService.htmlEscape(LanguageService.i18n(header))}
     </th>`).join('\n');
   }
@@ -214,9 +214,9 @@ export class SimplTable extends ReactiveElement {
    * @returns {object[]} The filtered items.
    */
   filteredItems(headers) {
-    return this.model[this.name]?.filter((item) => {
+    return this.model[this.context][this.name]?.filter((item) => {
       const searchable = TextService.unaccent(headers.map((header) => `${item[header]}`).join('\t'));
-      return TextService.unaccent(searchable).includes((TextService.unaccent(this.model['filter'] || '')));
+      return TextService.unaccent(searchable).includes((TextService.unaccent(this.model[this.context]['filter'] || '')));
     });
   }
 
@@ -227,11 +227,11 @@ export class SimplTable extends ReactiveElement {
    * @returns {object[]} The ordered items.
    */
   order(items) {
-    const order = this.model['order'];
+    const order = this.model[this.context]['_order'];
     if (!order) {
       return items;
     }
-    const orderDirection = this.model['order_direction'] || 'asc';
+    const orderDirection = this.model[this.context]['_order_direction'] || 'asc';
     return items.sort((a, b) => {
       if ((a[order] || '') < (b[order] || '')) {
         return orderDirection === 'asc' ? -1 : 1;

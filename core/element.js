@@ -40,17 +40,17 @@ export class Element extends HTMLElement {
   }
 
   /**
-   * Getter to return the current model (enclosed in the current context)
+   * Getter to return the current model
    */
   get model() {
-    return SimplModel.get(undefined, this.context);
+    return SimplModel.model;
   }
 
   /**
-   * Setter to set the new model (enclosed in the current context)
+   * Setter to set the new model
    */
   set model(value) {
-    SimplModel.set(value, undefined, this.context);
+    SimplModel.model = value;
   }
 
   #modelChangesSubscription() {
@@ -299,9 +299,14 @@ export class Element extends HTMLElement {
    */
   async saveViewState() {
     if (ConfigService.saveUser)
-      StorageService.saveUser(this.context, this.model);
+      StorageService.saveUser(this.context, this.model[this.context]);
   }
   
+  async saveAppState() {
+    if (ConfigService.saveApp)
+      StorageService.saveAppModel(this.model);
+  }
+
   /**
    * Upgrades all custom elements within the given root.
    * @private

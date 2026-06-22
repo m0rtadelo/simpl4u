@@ -39,7 +39,7 @@ export class SimplSelect extends FormElement {
    * @param {Event} value - The change event from the select element
    */
   change(value) {
-    this.setField(this.name || this.id, value.target.value);
+    this.setField(this.getName(), value.target.value);
   }
 
   /**
@@ -54,10 +54,10 @@ export class SimplSelect extends FormElement {
   #selectWithLabel(state) {
     return `
 <div class="mb-3" ${this.hidden ? 'style="display:none"' : ''}>
-<label for="${this.name || this.id}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
+<label for="${this.getName()}" class="form-label col-12">${LanguageService.i18n(this.label)}${this.required ? ' <span style="color: var(--bs-form-invalid-color)">*</span>' : ''}</label>
 <select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${LanguageService.i18n(this.label)}">
 ${ this.items.map(item => `
-  <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
+  <option value="${item.id}" ${state[this.getName()] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
 `) }
 </select>
 </div>
@@ -69,7 +69,7 @@ ${ this.items.map(item => `
 <div ${this.hidden ? 'style="display:none"' : ''}>
 <select class="form-select" ${super.isRequired()} (change)="change" ${this.disabled ? 'disabled' : ''} aria-label="${LanguageService.i18n(this.label)}">
 ${ this.items.map(item => `
-  <option value="${item.id}" ${state[this.name || this.id] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
+  <option value="${item.id}" ${state[this.getName()] === item.id ? 'selected' : ''}>${LanguageService.i18n(item.text)}</option>
 `) }
 </select>
 </div>
