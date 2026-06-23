@@ -1,7 +1,32 @@
 {
   "name": "simpl4u",
   "version": "1.0.0",
+  "description": "A modular framework for building Electron and web applications using native Web Components, Bootstrap 5 and a reactive state management system.",
+  "type": "module",
   "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./adapters/*": "./adapters/*",
+    "./components/*": "./components/*",
+    "./core/*": "./core/*",
+    "./models/*": "./models/*",
+    "./services/*": "./services/*",
+    "./assets/*": "./assets/*",
+    "./lib/*": "./lib/*"
+  },
+  "files": [
+    "index.js",
+    "adapters/",
+    "assets/",
+    "components/",
+    "core/",
+    "lib/",
+    "models/",
+    "services/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
@@ -9,7 +34,6 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
   },
   "devDependencies": {
