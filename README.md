@@ -114,6 +114,19 @@ Import the library in your HTML or JavaScript entry point:
 
 All components are automatically registered as custom elements. For Electron apps, use the same import in your renderer process.
 
+### Saving disk space across multiple projects
+
+Installing simpl4u with `npm install` copies the whole library into each project's `node_modules`, so if you have several apps that use it, the library is duplicated on disk N times.
+
+To avoid this, install it with [pnpm](https://pnpm.io) instead. pnpm keeps a single copy of each package version in a global store and hard-links it into every project, so all your apps share **one** physical copy while keeping fully isolated, working `node_modules`:
+
+```sh
+npm install -g pnpm
+pnpm install simpl4u
+```
+
+No changes to your code or to simpl4u are required — pnpm installs from the same npm registry. (Note: installing the library globally with `npm install -g` does **not** help here, since `import 'simpl4u/...'` only resolves from a project's local `node_modules`. The global install is only useful for the `s4u` CLI.)
+
 ---
 
 ## CLI
