@@ -16,6 +16,13 @@ WIP / POC. No tests, no CI, no TypeScript.
 | `npm run lint` | ESLint check (flat config, `eslint.config.mjs`) |
 | `npm run lint:fix` | Auto-fix |
 | `npm test` | Stub — errors out |
+| `./s4u component <static\|reactive> <Name>` | Scaffold a new component (Bash CLI) |
+
+### `s4u` CLI
+
+- Bash scaffolder at repo root. Generates `components/simpl-{name}.js` from a `StaticElement` or `ReactiveElement` base and auto-registers it by appending the import to `components/index.js`.
+- Resolves the base-class import path whether run inside `simpl4u/` or a sibling consumer project.
+- Converts the given name to kebab-case for the file and custom-element tag.
 
 ## Code style
 
@@ -29,9 +36,10 @@ WIP / POC. No tests, no CI, no TypeScript.
 - **Pure ES modules** — no build step, loaded directly in browser / Electron renderer
 - **Web Components** — all custom elements register themselves via `customElements.define`
 - **Class hierarchy**: `HTMLElement` → `Element` (core/element.js) → `StaticElement` / `ReactiveElement` / `FormElement`
-- **State**: `SimplModel` singleton, context-namespaced keys, Proxy-based reactivity, 20ms debounced notifications
+- **State**: `SimplModel` singleton, context-namespaced keys, Proxy-based reactivity, 20ms debounced notifications with content-dedup to prevent render loops
+- **Rendering**: morphdom-based in-place DOM patching (`childrenOnly: true`) to avoid flicker; toggle via `Element.useMorphdom` (default `true`). `core/element_old.js` is the legacy `innerHTML` implementation kept for reference
 - **Event binding**: `(click)="methodName"` attribute syntax in component templates
-- **Vendored deps** in `lib/`: Bootstrap 5 (CSS + JS bundle), Notyf (toast notifications), to-excel (XLS export)
+- **Vendored deps** in `lib/`: Bootstrap 5 (CSS + JS bundle), Bootstrap Icons, morphdom (DOM diffing), Notyf (toast notifications), to-excel (XLS export)
 - **Adapters** in `adapters/`: `StorageAdapter` (pluggable backend for `StorageService`)
 
 ## Services (in `services/`)
@@ -47,6 +55,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 | `StorageService` | 3-tier persistence (localStorage / sessionStorage / Electron IPC) |
 | `FileService` | Download in browser, full filesystem in Electron (IPC) |
 | `TextService` | `unaccent()`, `sanitize()`, `localDate()` |
+| `ConfigService` | Global persistence flags (`saveApp`, `saveUser`) read by `core/element.js` to gate state save/restore |
 
 ## Storage tiers (`StorageService` + `StorageAdapter` — `adapters/storage-adapter.js`)
 
@@ -68,4 +77,5 @@ WIP / POC. No tests, no CI, no TypeScript.
 - `rollup` appears in `package-lock.json` but has no config or script — likely vestigial, do not rely on it
 - No test framework is set up (roadmap item: "Unit tests")
 - Vendored deps in `lib/` are committed to the repo (not in `.gitignore`)
-- License file says MIT; `package.json` says ISC — discrepancy exists, LICENSE file is authoritative
+- License is MIT in both `LICENSE` and `package.json`
+- `AUDIT.md` holds a code/architecture audit; consult it for known issues before large refactors

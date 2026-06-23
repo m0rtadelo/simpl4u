@@ -33,7 +33,7 @@
     "lint:fix": "eslint . --fix"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
   },
   "devDependencies": {
