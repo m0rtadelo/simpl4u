@@ -21,6 +21,7 @@
 - **File Operations** — Download files in the browser, plus full file system access in Electron (read, write, copy, delete, directory selection).
 - **Bootstrap 5** — All components render Bootstrap-compatible markup.
 - **No Build Step** — Pure ES modules loaded directly in modern browsers or Electron renderers.
+- **Component Scaffolder** — `s4u` Bash CLI generates and auto-registers new components.
 
 ---
 
@@ -61,7 +62,7 @@ StaticElement (direct)
 | `Element` | Root base extending `HTMLElement`. Provides templating (`template()`, `render()`), attribute-based event binding (`(click)="method"`), model integration, Bootstrap form validation, view state persistence, and CSS scoping. |
 | `StaticElement` | Extends `Element`. Subscribes to `SimplModel` changes and calls `onUpdateState(property)` — does not auto-re-render. |
 | `FormElement` | Extends `StaticElement`. Base for form input components with `required`, `disabled`, `hidden`, `reactive`, `type`, `placeholder` attributes. |
-| `ReactiveElement` | Extends `Element`. Subscribes to `SimplModel` and automatically re-renders the template on state changes. Uses HTML diffing to avoid unnecessary DOM replacement. |
+| `ReactiveElement` | Extends `Element`. Subscribes to `SimplModel` and automatically re-renders the template on state changes. Uses morphdom-based in-place DOM patching to avoid unnecessary DOM replacement and flicker. |
 
 ---
 
@@ -74,10 +75,11 @@ simpl4u/
 │   └── i18n/             # Locale files (en, ca, es, de, ja)
 ├── components/            # Web Component definitions (17 components)
 ├── core/                  # Base classes (Element, StaticElement, ReactiveElement, FormElement)
-├── lib/                   # Vendored dependencies (Bootstrap 5, Notyf, to-excel)
+├── lib/                   # Vendored dependencies (Bootstrap 5, Bootstrap Icons, morphdom, Notyf, to-excel)
 ├── models/                # State management (SimplModel)
 ├── services/              # Application services (router, i18n, theme, modal, toast, etc.)
 ├── index.js               # Public entrypoint
+├── s4u                    # Component scaffolder CLI (Bash)
 ├── AGENTS.md              # AI agent instructions
 ├── eslint.config.mjs      # ESLint flat config
 └── package.json
@@ -93,7 +95,7 @@ simpl4u/
 npm install
 ```
 
-The project has no runtime dependencies (Bootstrap, Notyf, and to-excel are vendored in `lib/`). ESLint is the only dev dependency.
+The project has no runtime dependencies (Bootstrap, Bootstrap Icons, morphdom, Notyf, and to-excel are vendored in `lib/`). ESLint is the only dev dependency.
 
 ### Lint
 
@@ -101,6 +103,17 @@ The project has no runtime dependencies (Bootstrap, Notyf, and to-excel are vend
 npm run lint          # Check code quality
 npm run lint:fix      # Auto-fix lint issues
 ```
+
+### Scaffold a component
+
+Use the `s4u` Bash CLI to generate a new component. It creates `components/simpl-{name}.js` from the chosen base class and auto-registers it in `components/index.js`.
+
+```sh
+./s4u component static MyComponent     # extends StaticElement
+./s4u component reactive MyComponent    # extends ReactiveElement
+```
+
+The name is converted to kebab-case for the file name and custom-element tag (e.g. `MyComponent` → `simpl-my-component`). The CLI resolves the base-class import path whether run inside `simpl4u/` or a sibling consumer project.
 
 ### Usage
 
@@ -268,6 +281,7 @@ Filterable list (internal component used by `simpl-combobox`).
 | `StorageService` | High-level storage API wrapping `StorageAdapter`. `saveApp(key)`, `loadApp(key)`, `saveUser(key)`, `loadUser(key)`, `saveSystem(key)`, `loadSystem(key)`, `saveAppModel()`, `loadAppModel()`. |
 | `FileService` | Browser/Electron file operations. `download(filename, data)` for browser; in Electron: `readFile`, `writeFileSync`, `mkdir`, `selectDirectory`, `ls`, `cp`, `rm`, `rmdir` via IPC. |
 | `TextService` | String utilities. `unaccent(value)` (remove diacritics), `sanitize(value)` (escape HTML), `localDate(dateString)` (format ISO date). |
+| `ConfigService` | Global persistence flags. `saveApp` and `saveUser` (default `true`) are read by `core/element.js` to gate automatic view-state save/restore. |
 
 ---
 
