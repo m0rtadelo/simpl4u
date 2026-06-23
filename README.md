@@ -104,17 +104,6 @@ npm run lint          # Check code quality
 npm run lint:fix      # Auto-fix lint issues
 ```
 
-### Scaffold a component
-
-Use the `s4u` Bash CLI to generate a new component. It creates `components/simpl-{name}.js` from the chosen base class and auto-registers it in `components/index.js`.
-
-```sh
-./s4u component static MyComponent     # extends StaticElement
-./s4u component reactive MyComponent    # extends ReactiveElement
-```
-
-The name is converted to kebab-case for the file name and custom-element tag (e.g. `MyComponent` → `simpl-my-component`). The CLI resolves the base-class import path whether run inside `simpl4u/` or a sibling consumer project.
-
 ### Usage
 
 Import the library in your HTML or JavaScript entry point:
@@ -124,6 +113,40 @@ Import the library in your HTML or JavaScript entry point:
 ```
 
 All components are automatically registered as custom elements. For Electron apps, use the same import in your renderer process.
+
+---
+
+## CLI
+
+Simpl4u ships with the `s4u` CLI to scaffold a new component for **your application** (i.e. a project that consumes simpl4u). It creates `components/{name}.js` from the chosen base class and auto-registers it in `components/index.js`.
+
+When you install simpl4u, npm links the CLI into `node_modules/.bin`, so you can run it with `npx`:
+
+```sh
+npx s4u component static MyComponent     # extends StaticElement
+npx s4u component reactive MyComponent    # extends ReactiveElement
+```
+
+Inside an npm `scripts` entry the binary is already on the `PATH`, so you can call it directly:
+
+```json
+{
+  "scripts": {
+    "generate": "s4u component reactive MyComponent"
+  }
+}
+```
+
+You can also install it globally to use `s4u` from anywhere:
+
+```sh
+npm install -g simpl4u
+s4u component reactive MyComponent
+```
+
+The name is converted to kebab-case for the file name and custom-element tag (e.g. `MyComponent` → `my-component.js`, tag `<my-component>`). Generated components import their base class from the published package (e.g. `import { ReactiveElement } from 'simpl4u/core/reactive-element.js';`).
+
+> The `simpl-` prefix is reserved for simpl4u's own built-in components. Components you scaffold for your app are named however you like — no `simpl-` prefix is added.
 
 ---
 

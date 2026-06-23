@@ -74,23 +74,10 @@ ensure_import() {
 }
 
 resolve_base_import() {
-  local cwd="$1"
-  local base_file="$2"
-  local parent_dir
+  local base_file="$1"
 
-  parent_dir=$(dirname "$cwd")
-
-  if [ -f "$cwd/core/$base_file" ]; then
-    printf '%s' "../core/$base_file"
-    return
-  fi
-
-  if [ -f "$parent_dir/simpl4u/core/$base_file" ]; then
-    printf '%s' "../../simpl4u/core/$base_file"
-    return
-  fi
-
-  printf '%s' "../core/$base_file"
+  # simpl4u is consumed as an npm package; resolve via its package exports.
+  printf '%s' "simpl4u/core/$base_file"
 }
 
 generate_component() {
@@ -103,11 +90,11 @@ generate_component() {
 
   case "$(to_lower "$component_class")" in
     static)
-      base_import=$(resolve_base_import "$cwd" 'static-element.js')
+      base_import=$(resolve_base_import 'static-element.js')
       base_class='StaticElement'
       ;;
     reactive)
-      base_import=$(resolve_base_import "$cwd" 'reactive-element.js')
+      base_import=$(resolve_base_import 'reactive-element.js')
       base_class='ReactiveElement'
       ;;
     *)

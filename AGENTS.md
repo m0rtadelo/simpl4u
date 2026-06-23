@@ -20,9 +20,9 @@ WIP / POC. No tests, no CI, no TypeScript.
 
 ### `s4u` CLI
 
-- Bash scaffolder at repo root. Generates `components/simpl-{name}.js` from a `StaticElement` or `ReactiveElement` base and auto-registers it by appending the import to `components/index.js`.
+- Bash scaffolder at repo root, intended for **consumer applications** that use the library (not for simpl4u's own components). Generates `components/{name}.js` from a `StaticElement` or `ReactiveElement` base and auto-registers it by appending the import to `components/index.js`.
 - Resolves the base-class import path whether run inside `simpl4u/` or a sibling consumer project.
-- Converts the given name to kebab-case for the file and custom-element tag.
+- Converts the given name to kebab-case for the file and custom-element tag (e.g. `MyComponent` → `my-component.js`, tag `<my-component>`). A leading `Simpl` in the name is stripped. **No `simpl-` prefix is added** — that prefix is reserved for simpl4u's built-in components; consumer components use whatever name the author chooses.
 
 ## Code style
 
@@ -67,7 +67,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 
 ## Conventions
 
-- Component files: `simpl-{name}.js` under `components/`
+- Component files: `simpl-{name}.js` under `components/` — this `simpl-` prefix is reserved for the library's **own built-in** components. Components scaffolded by the `s4u` CLI for consumer apps do NOT use this prefix.
 - All classes are un-exported within component files; the component file exports nothing (it registers the custom element as a side effect)
 - Core classes (`Element`, `StaticElement`, `ReactiveElement`, `FormElement`) are exported from `core/`
 - No external runtime dependencies — only ESLint dev dependency
