@@ -43,14 +43,12 @@ export class SimplCheckboxes extends FormElement {
    * @param {Event} event - The change event from the checkbox input
    */
   toggleCheckbox(event) {
-    const lang = event?.target?.name;
+    const value = event?.target?.name;
     const checked = event?.target?.checked;
-    if (lang) {
-      if (checked) {
-        this.model.lang.push(lang);
-      } else {
-        this.model.lang = this.model.lang.filter(l => l !== lang);
-      }
+    const field = this.name || this.id;
+    if (value && field) {
+      const values = this.getField(field) || [];
+      this.setField(field, checked ? [...values, value] : values.filter((v) => v !== value));
     }
   }
 }

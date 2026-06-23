@@ -33,8 +33,10 @@ export class SimplCrud extends StaticElement {
   constructor() {
     super();
     StorageService.loadApp(this.context).then((model) => {
-      this.setField(this.#dataKey, (model?.[this.#dataKey] || []));
-      if (!this.getField(this.#dataKey)) {
+      const stored = model?.[this.#dataKey];
+      if (stored !== undefined) {
+        this.setField(this.#dataKey, stored);
+      } else if (this.getField(this.#dataKey) === undefined) {
         this.setField(this.#dataKey, []);
       }
     });

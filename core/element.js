@@ -70,7 +70,7 @@ export class Element extends HTMLElement {
   #modelChangesSubscription() {
     this.#modelSubscription?.();
     this.#modelSubscription = SimplModel.subscribe((model, property) => {
-      this.isReactive && this.onUpdateState();
+      this.isReactive && this.onUpdateState(property);
     });
   }
 
