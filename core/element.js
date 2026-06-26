@@ -22,6 +22,7 @@ export class Element extends HTMLElement {
   id = this.getAttribute('id');
   label = this.getAttribute('label') || this.name || '';
   loadViewStateTimer = undefined;
+  useViewState = true;
   style = '';
 
   constructor() {
@@ -111,7 +112,7 @@ export class Element extends HTMLElement {
    */
   refresh(force = false) {
     this.#pendingForce = this.#pendingForce || force;
-    if (this.#refreshScheduled) return;
+    if (this.#refreshScheduled && !force) return;
     this.#refreshScheduled = true;
     // Batch all pending refreshes into a single animation frame so the browser
     // paints once instead of staggering component renders.
@@ -181,16 +182,26 @@ export class Element extends HTMLElement {
       getNodeKey: (node) => {
         if (node.nodeType !== 1) return undefined;
         const nodeTag = node.tagName;
-        if (nodeTag?.includes('-') && !node.id) {
-          return `${nodeTag}|${node.getAttribute('context') || ''}|${node.getAttribute('name') || ''}`;
+        // Namespace custom-element keys (tag + id + context + name) so they
+        // never collide with a regular child element that shares the same id
+        // (e.g. a simpl-input host and its inner <input> both keyed by the
+        // field name). With a plain id key, morphdom's keyed lookup would be
+        // overwritten by the inner element and, when removing the host on a
+        // conditional-branch switch, it would discard the inner node instead,
+        // leaving the host orphaned next to the newly added branch element.
+        if (nodeTag?.includes('-')) {
+          return `${nodeTag}|${node.id || ''}|${node.getAttribute('context') || ''}|${node.getAttribute('name') || ''}`;
         }
         return node.id || undefined;
       },
-      onBeforeElUpdated: (fromEl) => {
+      onBeforeElUpdated: (fromEl, toEl) => {
         if (fromEl === this) return true;
-        // A reused nested custom element: leave it untouched and let it
-        // re-render its own content (it owns its internal DOM).
+        // A reused nested custom element: sync its host attributes so it
+        // reacts to changes declared by the parent template (disabled,
+        // class, ...), but keep its own internal DOM and let it re-render
+        // its own content.
         if (fromEl.tagName?.includes('-')) {
+          this.#syncAttributes(fromEl, toEl);
           nestedToRefresh.push(fromEl);
           return false;
         }
@@ -199,6 +210,27 @@ export class Element extends HTMLElement {
     });
     nestedToRefresh.forEach((el) => el.refresh?.(force));
     this.#upgradeCustomElements(this);
+  }
+
+  /**
+   * Copies host attributes from a freshly rendered node onto the reused
+   * nested custom element so attribute-driven state (disabled, hidden,
+   * class, ...) stays in sync without morphing the element's children.
+   * @private
+   * @param {Element} fromEl - The reused element kept in the DOM
+   * @param {Element} toEl - The newly rendered element from the template
+   */
+  #syncAttributes(fromEl, toEl) {
+    for (const { name, value } of Array.from(toEl.attributes)) {
+      if (fromEl.getAttribute(name) !== value) {
+        fromEl.setAttribute(name, value);
+      }
+    }
+    for (const { name } of Array.from(fromEl.attributes)) {
+      if (!toEl.hasAttribute(name)) {
+        fromEl.removeAttribute(name);
+      }
+    }
   }
 
   getStyle() {
@@ -335,6 +367,9 @@ export class Element extends HTMLElement {
   }  
 
   async loadDebouncedUserData() {
+    if (this.useViewState === false) {
+      return;
+    }
     return new Promise((resolve) => {
       clearTimeout(this.loadViewStateTimer);
       this.loadViewStateTimer = setTimeout(async () => {
@@ -342,14 +377,15 @@ export class Element extends HTMLElement {
         if (result) {
           for (const [key, value] of Object.entries(result)) {
             if (!this.#removeKeys[key]) {
-              SimplModel.model[this.context] = SimplModel.model[this.context] || {};
-              SimplModel.model[this.context][key] = value;
+              // SimplModel.model[this.context] = SimplModel.model[this.context] || {};
+              // SimplModel.model[this.context][key] = value;
+              this.data[key] = value;
             }
           }
         }
         this.onUserDataLoaded();
         resolve(result);
-      }, 100);
+      }, 120);
     });
   }
 
@@ -357,8 +393,10 @@ export class Element extends HTMLElement {
    * Loads the view state from session storage.
    */
   async loadViewState() {
-    if (ConfigService.saveUser)
+    if (ConfigService.saveUser) {
       await this.loadDebouncedUserData();
+      //this.data = await StorageService.loadUser(this.context) || {};
+    }
     this.refresh();
   }
 

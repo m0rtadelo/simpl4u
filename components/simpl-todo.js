@@ -12,6 +12,7 @@ export class SimplTodo extends ReactiveElement {
   disableAddPanel = this.hasAttribute('disableAddPanel');
   disableEditPanel = this.hasAttribute('disableEditPanel');
   disableCardMovement = this.hasAttribute('disableCardMovement');
+  defaultModel = JSON.parse(this.getAttribute('defaultModel') || '{ "ToDo": [], "Doing": [], "Done": [] }');
 
   constructor() {
     super();
@@ -247,11 +248,7 @@ ${this.disableEditPanel ? `
    * @param {object} [model] - The model to reset (defaults to this.data)
    */
   resetModel(model = this.data) {
-    this.data = {
-      ToDo: [],
-      Doing: [],
-      Done: [],
-    };
+    this.data = this.defaultModel;// { ToDo: [], Doing: [], Done: [] };
   }
 
   /**
