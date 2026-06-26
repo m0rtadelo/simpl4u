@@ -3,6 +3,7 @@ import { LanguageService } from '../services/language-service.js';
 import { RouterService } from '../services/router-service.js';
 import { StorageService } from '../services/storage-service.js';
 import { ConfigService } from '../services/config-service.js';
+import { MessageService } from '../services/message-service.js';
 import morphdom from '../lib/morphdom.js';
 
 export class Element extends HTMLElement {
@@ -13,6 +14,7 @@ export class Element extends HTMLElement {
   #modelSubscription = undefined;
   #redraws = 0;
   #domListeners = [];
+  #busUnsubscribes = [];
   #removeKeys = {};
   static loaded = false;
   static useMorphdom = true;
@@ -318,6 +320,38 @@ export class Element extends HTMLElement {
     }
     this.#domListeners = [];
   }
+
+  /**
+   * Subscribes to a MessageService topic for the lifetime of this element.
+   * The subscription is automatically removed when the element leaves the DOM,
+   * so callers never have to unsubscribe manually.
+   * @param {string} topic - The topic name to listen to (convention: `domain:action`).
+   * @param {Function} handler - The callback invoked with the published payload.
+   * @returns {Function} A function to unsubscribe the handler early.
+   */
+  on(topic, handler) {
+    const off = MessageService.subscribe(topic, handler.bind(this));
+    this.#busUnsubscribes.push(off);
+    return off;
+  }
+
+  /**
+   * Publishes a message on the MessageService bus. Symmetric counterpart of
+   * {@link Element#on}, so any element (parent, child or sibling) subscribed to
+   * the same topic reacts to it regardless of the DOM hierarchy.
+   * @param {string} topic - The topic name (convention: `domain:action`).
+   * @param {*} [payload] - Optional data delivered to every subscriber.
+   */
+  emit(topic, payload) {
+    MessageService.emit(topic, payload);
+  }
+
+  #removeBusSubscriptions() {
+    for (const off of this.#busUnsubscribes) {
+      off();
+    }
+    this.#busUnsubscribes = [];
+  }
   
   setField(field, value, persistent = true, context = this.context) {
     if (SimplModel.model?.[context]?.[field] === value) return;
@@ -347,6 +381,7 @@ export class Element extends HTMLElement {
   disconnectedCallback() {
     this.saveViewState();
     this.#removeDomListeners();
+    this.#removeBusSubscriptions();
     this.#modelSubscription?.();
   }
 

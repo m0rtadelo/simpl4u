@@ -59,7 +59,7 @@ StaticElement (direct)
 
 | Class | Description |
 |---|---|
-| `Element` | Root base extending `HTMLElement`. Provides templating (`template()`, `render()`), attribute-based event binding (`(click)="method"`), model integration, Bootstrap form validation, view state persistence, and CSS scoping. |
+| `Element` | Root base extending `HTMLElement`. Provides templating (`template()`, `render()`), attribute-based event binding (`(click)="method"`), model integration, lifecycle-managed message-bus messaging (`on()` / `emit()`), Bootstrap form validation, view state persistence, and CSS scoping. |
 | `StaticElement` | Extends `Element`. Subscribes to `SimplModel` changes and calls `onUpdateState(property)` — does not auto-re-render. |
 | `FormElement` | Extends `StaticElement`. Base for form input components with `required`, `disabled`, `hidden`, `reactive`, `type`, `placeholder` attributes. |
 | `ReactiveElement` | Extends `Element`. Subscribes to `SimplModel` and automatically re-renders the template on state changes. Uses morphdom-based in-place DOM patching to avoid unnecessary DOM replacement and flicker. |
@@ -318,6 +318,7 @@ Filterable list (internal component used by `simpl-combobox`).
 | `FileService` | Browser/Electron file operations. `download(filename, data)` for browser; in Electron: `readFile`, `writeFileSync`, `mkdir`, `selectDirectory`, `ls`, `cp`, `rm`, `rmdir` via IPC. |
 | `TextService` | String utilities. `unaccent(value)` (remove diacritics), `sanitize(value)` (escape HTML), `localDate(dateString)` (format ISO date). |
 | `ConfigService` | Global persistence flags. `saveApp` and `saveUser` (default `true`) are read by `core/element.js` to gate automatic view-state save/restore. |
+| `MessageService` | Lightweight publish/subscribe message bus for decoupled (e.g. sibling) components. `subscribe(topic, handler)` → unsubscribe fn, `unsubscribe(topic, handler)`, `emit(topic, payload)`. Inside components, prefer the `Element` helpers `on()` / `emit()` over calling this service directly. |
 
 ---
 
@@ -450,6 +451,32 @@ Components use an attribute-based event binding syntax in their templates:
 ```
 
 This automatically calls `this.handleSave(event)` on the component instance.
+
+---
+
+## Inter-component messaging
+
+Components that don't share a parent/child relationship (e.g. siblings) can communicate through a publish/subscribe message bus instead of holding references to each other. The `Element` base class exposes two ergonomic helpers that wrap `MessageService`, so components never touch the service directly — mirroring how `model` / `data` / `getField` / `setField` wrap `SimplModel`.
+
+- **`this.on(topic, handler)`** — subscribes to a topic for the lifetime of the element. The handler is bound to the component and the subscription is **automatically removed** when the element leaves the DOM, so you never have to unsubscribe manually. Returns an unsubscribe function if you want to opt out early.
+- **`this.emit(topic, payload)`** — publishes a message to every subscriber of `topic`, regardless of where they sit in the DOM tree.
+
+Topic names follow a `domain:action` convention (e.g. `project:refresh`).
+
+```js
+// Publisher component
+renewTags() {
+  this.emit('project:refresh');
+}
+
+// Subscriber component (a sibling)
+connectedCallback() {
+  super.connectedCallback();
+  this.on('project:refresh', () => this.reloadItems());
+}
+```
+
+> Subscribe in `connectedCallback` (once per DOM connection), **not** in `onReady`, which runs on every render and would register a new subscription each time. Use the bus for transient signals; for shared application state prefer the reactive `SimplModel`.
 
 ---
 

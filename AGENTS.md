@@ -39,6 +39,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 - **State**: `SimplModel` singleton, context-namespaced keys, Proxy-based reactivity, 20ms debounced notifications with content-dedup to prevent render loops
 - **Rendering**: morphdom-based in-place DOM patching (`childrenOnly: true`) to avoid flicker; toggle via `Element.useMorphdom` (default `true`). `core/element_old.js` is the legacy `innerHTML` implementation kept for reference
 - **Event binding**: `(click)="methodName"` attribute syntax in component templates
+- **Inter-component messaging**: `MessageService` publish/subscribe bus for decoupled (sibling) components. Inside components use the `Element` helpers `this.on(topic, handler)` (lifecycle-managed subscription, auto-unsubscribed on disconnect) and `this.emit(topic, payload)` rather than calling `MessageService` directly. Subscribe in `connectedCallback`, not `onReady` (which runs on every render)
 - **Vendored deps** in `lib/`: Bootstrap 5 (CSS + JS bundle), Bootstrap Icons, morphdom (DOM diffing), Notyf (toast notifications), to-excel (XLS export)
 - **Adapters** in `adapters/`: `StorageAdapter` (pluggable backend for `StorageService`)
 
@@ -56,6 +57,7 @@ WIP / POC. No tests, no CI, no TypeScript.
 | `FileService` | Download in browser, full filesystem in Electron (IPC) |
 | `TextService` | `unaccent()`, `sanitize()`, `localDate()` |
 | `ConfigService` | Global persistence flags (`saveApp`, `saveUser`) read by `core/element.js` to gate state save/restore |
+| `MessageService` | Publish/subscribe message bus (`subscribe`/`unsubscribe`/`emit`) for decoupled components; prefer the `Element` `on()`/`emit()` helpers over using it directly |
 
 ## Storage tiers (`StorageService` + `StorageAdapter` — `adapters/storage-adapter.js`)
 

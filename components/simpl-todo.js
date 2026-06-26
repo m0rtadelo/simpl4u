@@ -228,6 +228,10 @@ ${this.disableEditPanel ? `
     this.renderItemsFn = fn;
   }
 
+  onUpdateItem(fn) {
+    this.updateItemFn = fn;
+  }
+
   /**
    * Renders items within a panel using the registered render function.
    * @param {object} state - The current model state
@@ -385,6 +389,7 @@ ${this.disableEditPanel ? `
     if (await ModalService.open(`<${this.form} context="__modal_todo"></${this.form}>`, 'add-todo')) {
       model[key] = model[key] || [];
       model[key].push(this.model['__modal_todo']);
+      this.updateItemFn?.(key, this.model['__modal_todo']);
       this.saveData();
     }
   }
@@ -402,6 +407,7 @@ ${this.disableEditPanel ? `
         if (await ModalService.open(`<${this.form} context="__modal_todo"></${this.form}>`, 'edit-todo')) {
           const updated = this.model['__modal_todo'];
           model[type][index] = updated;
+          this.updateItemFn?.(type, updated);
           this.saveData();
         }
       }
