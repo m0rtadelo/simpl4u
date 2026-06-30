@@ -1,6 +1,6 @@
 {
   "name": "simpl4u",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A modular framework for building Electron and web applications using native Web Components, Bootstrap 5 and a reactive state management system.",
   "type": "module",
   "main": "index.js",
