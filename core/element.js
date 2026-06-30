@@ -74,11 +74,16 @@ export class Element extends HTMLElement {
     this.#modelSubscription?.();
     this.#modelSubscription = SimplModel.subscribe((model, property) => {
       this.isReactive && this.onUpdateState(property);
+      this.onChangeValue(property);
     });
   }
 
-  onUpdateState() {
+  onUpdateState(property) {
     // Override this method in subclasses to react to model state changes
+  }
+
+  onChangeValue(property) {
+    // Override this method in subclasses to react to specific property changes
   }
 
   /**
@@ -412,8 +417,6 @@ export class Element extends HTMLElement {
         if (result) {
           for (const [key, value] of Object.entries(result)) {
             if (!this.#removeKeys[key]) {
-              // SimplModel.model[this.context] = SimplModel.model[this.context] || {};
-              // SimplModel.model[this.context][key] = value;
               this.data[key] = value;
             }
           }

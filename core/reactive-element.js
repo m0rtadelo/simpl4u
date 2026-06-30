@@ -6,7 +6,7 @@ import { Element } from './element.js';
  */
 export class ReactiveElement extends Element {
 
-  onUpdateState() {  
+  onUpdateState(property) {  
     this.refresh();
   }
 

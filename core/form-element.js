@@ -74,7 +74,7 @@ export class FormElement extends StaticElement {
     this.refresh(true);
   }
 
-  onUpdateState() {
+  onUpdateState(property) {
     this.refresh();
   }
 }
